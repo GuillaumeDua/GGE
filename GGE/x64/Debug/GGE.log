@@ -1,0 +1,19 @@
+﻿Build started 2/22/2015 1:45:27 AM.
+     1>Project "C:\DEV\PROJECTS\GGE\GGE\GGE.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\DEV\TOOLS\VC\bin\x86_amd64\CL.exe /c /I"C:\DEV\EXT_LIBS\SFML-2.2\include" /Zi /nologo /W3 /WX- /sdl /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt EventHandler.cpp Main.cpp
+         EventHandler.cpp
+         Generating Code...
+         Compiling...
+         Main.cpp
+         Generating Code...
+       Link:
+         C:\DEV\TOOLS\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\DEV\PROJECTS\GGE\x64\Debug\GGE.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\DEV\EXT_LIBS\SFML-2.2\lib" "sfml-graphics-d.lib" "sfml-window-d.lib" "sfml-system-d.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\DEV\PROJECTS\GGE\x64\Debug\GGE.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\DEV\PROJECTS\GGE\x64\Debug\GGE.lib" /MACHINE:X64 x64\Debug\CooldownManager.obj
+         x64\Debug\EventHandler.obj
+         x64\Debug\Main.obj
+         GGE.vcxproj -> C:\DEV\PROJECTS\GGE\x64\Debug\GGE.exe
+     1>Done Building Project "C:\DEV\PROJECTS\GGE\GGE\GGE.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:02.63
