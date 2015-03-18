@@ -12,6 +12,8 @@
 # include "GCL/Exception.h"
 # include "RENDERING/Types.h"
 # include "EventHandler.h"
+# include "EntityManager.h"
+# include "Screen.h"
 
 // Window::SetFramerateLimit => vertical sync ?
 // screenshots => sf::Image Scren = App.Capture()
@@ -77,14 +79,18 @@ namespace GGE
 		{
 			this->_backgroundSprite.setTexture(texture);
 		}
-
+		// Screen
+		Game &	operator+=(Screen && screen)
+		{
+			throw GCL::Exception("[Error] : Not implemented");
+		}
 		// Events handling
 		inline const EventHandler::MapType & GetEventHandler_map(void)
 		{
 			return *(this->_EventTypeToCB);
 		}
 		template <class T_EventHandler>
-		inline void						SetEventHandler()
+		inline void						SetEventHandler(void)
 		{
 			std::cout << "Switching event handler from [" << &(this->_EventTypeToCB) << "] to : [" << &(T_EventHandler::GetTypeToCB_Map()) << ']' << std::endl;
 			this->_EventTypeToCB = &(T_EventHandler::GetTypeToCB_Map());
@@ -96,19 +102,38 @@ namespace GGE
 				it->second(event, *this);
 			return true;
 		}
+		Game &							operator+=(IEntity * entity)
+		{
+			this->_entityManager += entity;
+		}
 		void							ManageEvents(void)
 		{
 			sf::Event event;
 			while (this->_window.pollEvent(event))
 				if (this->HandleEvent(event) == false) break;
 		}
+		// Entities 
+		void							ManageEntities(void)
+		{
+			if (this->_entityManager.TicksUp() && !(this->_entityManager.Behave()))
+				throw GCL::Exception("[Error] : Game::ManageEntities -> IEntity::Behave call failed");
+			this->_entityManager.Draw(this->_window);
+		}
 		// Loop
 		bool							Update(void)
 		{
-			this->_window.clear();
-			this->_window.draw(this->_backgroundSprite);
-			this->ManageEvents();
-			this->_window.display();
+			try
+			{
+				this->_window.clear();
+				this->_window.draw(this->_backgroundSprite);
+				this->ManageEvents();
+				this->ManageEntities();
+				this->_window.display();
+			}
+			catch (...)
+			{
+				return false;
+			}
 
 			return true;
 		}
@@ -151,7 +176,7 @@ namespace GGE
 				// [Todo] : CollisionEngine
 
 		// Entities :
-				// [Todo] : EntityManager
+				EntityManager			_entityManager;
 
 		// EventsHandler :
 				EventHandler::MapType *	_EventTypeToCB = &(EventHandler::Debugger::GetTypeToCB_Map());

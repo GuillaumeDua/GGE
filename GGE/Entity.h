@@ -4,6 +4,7 @@
 # include <map>
 # include <functional>
 # include <queue>
+# include <chrono>
 
 # include "Sprite.h"
 # include "GCL/Exception.h"
@@ -18,8 +19,9 @@ struct IEntity
 template <typename EntityDescriptor> class Entity : public IEntity
 {
 public:
-	using Behavior = std::map < EntityDescriptor::Status, std::function<bool(Entity<EntityDescriptor::Status>&)> >;
-	using Animation = std::map < EntityDescriptor::Status, GGE::Sprite::Serie >;
+	using Status	= typename EntityDescriptor::Status;
+	using Behavior	= typename EntityDescriptor::Behavior;
+	using Animation = typename EntityDescriptor::Animation;
 
 	Entity(	const std::pair<int, int> & pos
 		,	const std::pair<int, int> & size
@@ -29,39 +31,49 @@ public:
 		, _size(size)
 		, _behavior(EntityDescriptor::_behavior)
 		, _animations(EntityDescriptor::_animation)
+		, _rotation(.0f)
 	{}
 
-	void									Draw(sf::RenderWindow & renderWindow)
+	void								Draw(sf::RenderWindow & renderWindow)
 	{
-		renderWindow.draw(*(this->_animations.at(this->_currentStatus).Get()));
+		sf::Sprite & sprite = *(this->_animations.at(this->_currentStatus).Get());
+		sprite.setRotation(_rotation);
+		renderWindow.draw(sprite);
 	}
-	bool									Behave(void)
+	bool								Behave(void)
 	{
 		return this->_behavior.at(this->_currentStatus)(*this);
 	}
-	inline const EntityDescriptor::Status	GetCurrentStatus(void) const
+
+	inline const Status					GetCurrentStatus(void) const
 	{
 		return this->_currentStatus;
 	}
 
 protected:
-	Entity(const Entity<EntityDescriptor::Status> &)	{ throw GCL::Exception("Not implemented"); }
-	Entity(const Entity<EntityDescriptor::Status> &&)	{ throw GCL::Exception("Not implemented"); }
+	Entity(const Entity<Status> &)		{ throw GCL::Exception("Not implemented"); }
+	Entity(const Entity<Status> &&)		{ throw GCL::Exception("Not implemented"); }
 	Entity(){}
 	virtual ~Entity();	
 
-	std::queue<EntityDescriptor::Status>	_pendingStatus;
+	// std::queue<Status>						_pendingStatus;	// [Todo]::[?]
 
-	EntityDescriptor::Status				_currentStatus;
-	const Behavior	&						_behavior;
-	const Animation	&						_animations;
+	Status									_currentStatus;
+	Behavior								_behavior;
+	Animation								_animations;
 	std::pair<int, int>						_position;
 	std::pair<int, int>						_size;
+	float									_rotation;
 };
 
+//
+//	[Another file] : Sample of implementation
+//
 
 struct Sonic_EntityDescriptor
 {
+	friend Entity < Sonic_EntityDescriptor >;
+
 	enum Status
 	{
 		Default
@@ -71,22 +83,34 @@ struct Sonic_EntityDescriptor
 		, Jumping
 	};
 
-	using Behavior = std::map < Status, std::function<bool(Entity<Status>&)> >;
-	using Animation = std::map < Status, GGE::Sprite::Serie >;
+	using Behavior	= std::map < Status, std::function<bool(Entity<Sonic_EntityDescriptor>&)> >;	// [Todo] : Multimap + not const [?]
+	using Animation	= std::map < Status, GGE::SPRITE::Serie >;
 
-	const Behavior _behavior = 
-	{
-	};
+	static const GGE::SPRITE::Sheet	gSpriteSheet;
+	static const Behavior			_behavior;
+	static const Animation			_animation;
+};
 
-	const Animation _animation =
+static const Sonic_EntityDescriptor::Behavior _behavior =
+{
 	{
-	};
+		Sonic_EntityDescriptor::Status::Walking,
+		[&](Entity<Sonic_EntityDescriptor> & entity) mutable -> bool
+		{
+			std::cout << "Sonic_EntityDescriptor::_behavior called !" << std::endl;
+			return true;
+		}
+	}
+};
+static const Sonic_EntityDescriptor::Animation _animation =
+{
+	{ Sonic_EntityDescriptor::Status::Walking, GGE::SPRITE::Serie(Sonic_EntityDescriptor::gSpriteSheet, 6, 0) }
 };
 
 
 struct Sonic : public Entity < Sonic_EntityDescriptor >
 {
-	
 };
+
 
 #endif // __GGE_ENTITY__

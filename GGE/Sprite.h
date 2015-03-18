@@ -9,13 +9,22 @@
 
 namespace GGE
 {
-	namespace Sprite
+	namespace SPRITE
 	{
 		struct Sheet
 		{
 			Sheet() = delete;
 			Sheet(const Sheet &) = delete;
-			Sheet(const Sheet &&) = delete;
+			Sheet(const Sheet && sheet) = delete;
+
+			Sheet &	operator=(Sheet & sheet) = delete;
+			Sheet &	operator=(Sheet && sheet) = delete;
+			//{
+			//	if (&sheet == this)
+			//		throw GCL::Exception("[Error] : Attempting to move a GGE::Sprite::Sheet to itself");
+			//	if (sheet._isValid == false)
+			//		throw std::logic_error("[Error] : Attempting to move a non-valid GGE::Sprite::Sheet");
+			//}
 
 			Sheet(const std::string & texture_path
 				, const std::pair<int, int> && dimension
@@ -25,7 +34,7 @@ namespace GGE
 				, _qty(qty)
 			{
 				if (!(this->_isValid = this->_texture.loadFromFile(texture_path)))
-					std::cerr << "[Error] : Fail to loadi sprite sheet : [" << texture_path << ']' << std::endl;
+					std::cerr << "[Error] : Fail to load sprite sheet : [" << texture_path << ']' << std::endl;
 				else
 				{
 					Sheet::LoadSprites(this->_texture, this->_sprites, this->_dimension, this->_qty);
@@ -79,25 +88,30 @@ namespace GGE
 		// A serie of (copy of) sprites, ready for animation
 		struct Serie
 		{
-			Serie(){}
-			Serie(const Serie  &) = delete;
-			Serie(const Serie  &&) = delete;
+			Serie() = delete;
+			Serie(const Serie  & serie)
+				: _sprites(serie._sprites)
+				, _currentSpriteIterator(_sprites.begin())
+			{}
+			Serie(const Serie  && serie)
+				: _sprites(std::move(serie._sprites))
+				, _currentSpriteIterator(_sprites.begin())
+			{}
 
-			Serie(const Sheet & spriteSheet, const size_t qty, const size_t offset)
+			explicit Serie(const Sheet & spriteSheet, const size_t qty, const size_t offset)
 			{
 				this->Load(spriteSheet, qty, offset);
 			}
-			Serie(const Sheet & spriteSheet)
+			explicit Serie(const Sheet & spriteSheet)
 			{
 				this->Load(spriteSheet, spriteSheet.GetContent().size(), 0);
 			}
 
-			Serie &	operator+=(const sf::Sprite & sprite)
+			Serie &									operator+=(const sf::Sprite & sprite)
 			{
 				this->_sprites.push_back(sprite);
 			}
-
-			const std::vector<sf::Sprite>::const_iterator	Get(void)
+			std::vector<sf::Sprite>::iterator		Get(void)
 			{
 				assert(_sprites.size() != 0);
 
@@ -106,14 +120,14 @@ namespace GGE
 
 				return this->_currentSpriteIterator++;
 			}
-			void											Reset(void)
+			void									Reset(void)
 			{
 				assert(_sprites.size() != 0);
 				this->_currentSpriteIterator = _sprites.begin();
 			}
 
 		protected:
-			void	Load(const Sheet & spriteSheet, const size_t qty, const size_t offset)
+			void									Load(const Sheet & spriteSheet, const size_t qty, const size_t offset)
 			{
 				assert(offset + qty <= spriteSheet.GetContent().size());
 				for (size_t it = offset; it < qty; ++it)
@@ -121,8 +135,8 @@ namespace GGE
 				this->_currentSpriteIterator = this->_sprites.begin();
 			}
 
-			std::vector<sf::Sprite>				_sprites;
-			std::vector<sf::Sprite>::iterator	_currentSpriteIterator;
+			std::vector<sf::Sprite>					_sprites;
+			std::vector<sf::Sprite>::iterator		_currentSpriteIterator;
 		};
 	}
  }
