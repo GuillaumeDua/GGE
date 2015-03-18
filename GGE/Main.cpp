@@ -12,6 +12,13 @@ int	main(int ac, char *av[])
 		// SPRITES/Sonic_spritesSheet.png
 
 		game.SetBackground("SPRITES/bg_blue.png");
+
+		// [TEST]
+		Sonic sonic(std::make_pair(200, 200));
+		sonic.ForceCurrentStatus(Sonic::Status::Walking);
+		game.GetRefEntityManager() += static_cast<IEntity*>(&sonic);
+		// [/TEST]
+
 		game.Start();
 	}
 	catch (const GCL::Exception & ex)

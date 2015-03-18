@@ -102,10 +102,6 @@ namespace GGE
 				it->second(event, *this);
 			return true;
 		}
-		Game &							operator+=(IEntity * entity)
-		{
-			this->_entityManager += entity;
-		}
 		void							ManageEvents(void)
 		{
 			sf::Event event;
@@ -113,7 +109,11 @@ namespace GGE
 				if (this->HandleEvent(event) == false) break;
 		}
 		// Entities 
-		void							ManageEntities(void)
+		inline EntityManager &			GetRefEntityManager(void)
+		{
+			return this->_entityManager;
+		}
+		void							ManageEntities(void)	// [Todo] : protected
 		{
 			if (this->_entityManager.TicksUp() && !(this->_entityManager.Behave()))
 				throw GCL::Exception("[Error] : Game::ManageEntities -> IEntity::Behave call failed");

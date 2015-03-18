@@ -122,6 +122,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CooldownManager.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EventHandler.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>

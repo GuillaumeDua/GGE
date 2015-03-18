@@ -36,6 +36,9 @@
     <ClCompile Include="CooldownManager.cpp">
       <Filter>Source Files\EVENTS</Filter>
     </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__Game.h">
