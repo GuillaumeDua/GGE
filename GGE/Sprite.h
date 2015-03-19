@@ -26,7 +26,7 @@ namespace GGE
 			//		throw std::logic_error("[Error] : Attempting to move a non-valid GGE::Sprite::Sheet");
 			//}
 
-			Sheet(const std::string & texture_path
+			explicit Sheet(const std::string & texture_path
 				, const std::pair<int, int> && dimension
 				, const std::pair<int, int> && qty)
 				: _texture_path(texture_path)
@@ -42,7 +42,6 @@ namespace GGE
 				}
 			}
 
-	
 			DEBUG_INSTRUCTION(const std::vector<sf::Sprite>::const_iterator	Get(void)
 			{
 				assert(this->_isValid);

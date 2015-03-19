@@ -6,7 +6,7 @@ const GGE::SPRITE::Sheet Sonic_EntityDescriptor::gSpriteSheet(GGE::SPRITE::Sheet
 // [Sample of implementation]
 //
 
-static const Sonic_EntityDescriptor::Behavior _behavior =
+const Sonic_EntityDescriptor::Behavior Sonic_EntityDescriptor::_behavior =
 {
 	{
 		Sonic_EntityDescriptor::Status::Walking,
@@ -17,11 +17,11 @@ static const Sonic_EntityDescriptor::Behavior _behavior =
 		}
 	}
 };
-static const Sonic_EntityDescriptor::Animation _animation =
+const Sonic_EntityDescriptor::Animation Sonic_EntityDescriptor::_animation =
 {
 	{ Sonic_EntityDescriptor::Status::Walking, std::move(GGE::SPRITE::Serie(Sonic_EntityDescriptor::gSpriteSheet, 6, 0)) }
 };
-static const std::pair<int, int>				_size = std::make_pair(82, 111);
+const std::pair<int, int>				Sonic_EntityDescriptor::_size = std::make_pair(82, 111);
 
 //
 // [Sample of implementation]

@@ -19,6 +19,8 @@ struct IEntity
 template <typename EntityDescriptor> class Entity : public IEntity	//, Garbageable< Entity< EntityDescriptor > >
 {
 public:
+	using ThisType = typename Entity < EntityDescriptor > ;
+
 	using Status	= typename EntityDescriptor::Status;
 	using Behavior	= typename EntityDescriptor::Behavior;
 	using Animation = typename EntityDescriptor::Animation;
@@ -56,8 +58,8 @@ public:
 protected:
 	/*Entity(const Entity<EntityDescriptor> &)		{ throw GCL::Exception("Not implemented"); }
 	Entity(const Entity<EntityDescriptor> &&)		{ throw GCL::Exception("Not implemented"); }*/
-	Entity(const Entity<EntityDescriptor> &)		= delete;
-	Entity(const Entity<EntityDescriptor> &&)		= delete;
+	Entity(const ThisType &)		= delete;
+	Entity(const ThisType &&)		= delete;
 	Entity() = delete;
 
 	//std::queue<Status>					_pendingStatus;	// [Todo]::[?]
