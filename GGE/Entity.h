@@ -23,8 +23,8 @@ public:
 	using Behavior	= typename EntityDescriptor::Behavior;
 	using Animation = typename EntityDescriptor::Animation;
 
-	Entity(	const std::pair<int, int> & pos)
-		: _currentStatus(EntityDescriptor::Status::Default)
+	Entity(const std::pair<int, int> & pos)
+		: _currentStatus(EntityDescriptor::Default)
 		, _position(pos)
 		, _size(EntityDescriptor::_size)
 		, _behavior(EntityDescriptor::_behavior)
@@ -54,8 +54,8 @@ public:
 	}
 
 protected:
-	Entity(const Entity<Status> &)		{ throw GCL::Exception("Not implemented"); }
-	Entity(const Entity<Status> &&)		{ throw GCL::Exception("Not implemented"); }
+	Entity(const Entity<EntityDescriptor> &)		{ throw GCL::Exception("Not implemented"); }
+	Entity(const Entity<EntityDescriptor> &&)		{ throw GCL::Exception("Not implemented"); }
 	Entity() = delete;
 	// virtual ~Entity();
 
@@ -109,12 +109,12 @@ static const Sonic_EntityDescriptor::Behavior _behavior =
 };
 static const Sonic_EntityDescriptor::Animation _animation =
 {
-	{ Sonic_EntityDescriptor::Status::Walking, GGE::SPRITE::Serie(Sonic_EntityDescriptor::gSpriteSheet, 6, 0) }
+	{ Sonic_EntityDescriptor::Status::Walking, std::move(GGE::SPRITE::Serie(Sonic_EntityDescriptor::gSpriteSheet, 6, 0)) }
 };
 static const std::pair<int, int>				_size = std::make_pair(82, 111);
 
-
-using Sonic = Entity < Sonic_EntityDescriptor > ;
+typedef Entity < Sonic_EntityDescriptor > Sonic;
+// using Sonic = Entity < Sonic_EntityDescriptor > ;
 //struct Sonic : public Entity < Sonic_EntityDescriptor >
 //{
 //	Sonic(std::pair<int, int> & pos)
