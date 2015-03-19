@@ -9,7 +9,10 @@ struct EntityManager
 	static const size_t	RefreshRate = 15;
 
 	explicit EntityManager(){}
-	~EntityManager(){}
+	~EntityManager()
+	{ 
+		this->Clean();
+	}
 	EntityManager(const EntityManager &) = delete;
 	EntityManager(const EntityManager &&) = delete;
 	EntityManager & operator=(const EntityManager &) = delete;
@@ -22,6 +25,7 @@ struct EntityManager
 	EntityManager &	operator+=(IEntity * entity)
 	{
 		this->_content.push_back(entity);
+		return *this;
 	}
 
 	void			Draw(sf::RenderWindow & renderWindow)
@@ -33,6 +37,12 @@ struct EntityManager
 		bool bReturn(true);
 		std::for_each(this->_content.begin(), this->_content.end(), [&, bReturn](IEntity * entity) mutable { if (!bReturn) return; bReturn = entity->Behave(); });
 		return bReturn;
+	}
+	void			Clean(void)
+	{
+		for (auto & elem : this->_content)
+			delete elem;
+		this->_content.clear();
 	}
 
 	bool			TicksUp(void)

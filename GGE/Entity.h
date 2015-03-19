@@ -16,7 +16,7 @@ struct IEntity
 	virtual bool	Behave(void)						  = 0;
 };
 
-template <typename EntityDescriptor> class Entity : public IEntity
+template <typename EntityDescriptor> class Entity : public IEntity	//, Garbageable< Entity< EntityDescriptor > >
 {
 public:
 	using Status	= typename EntityDescriptor::Status;
@@ -31,7 +31,7 @@ public:
 		, _animations(EntityDescriptor::_animation)
 		, _rotation(.0f)
 	{}
-	virtual ~Entity();
+	virtual ~Entity(){}
 
 	void								Draw(sf::RenderWindow & renderWindow)
 	{
@@ -54,10 +54,11 @@ public:
 	}
 
 protected:
-	Entity(const Entity<EntityDescriptor> &)		{ throw GCL::Exception("Not implemented"); }
-	Entity(const Entity<EntityDescriptor> &&)		{ throw GCL::Exception("Not implemented"); }
+	/*Entity(const Entity<EntityDescriptor> &)		{ throw GCL::Exception("Not implemented"); }
+	Entity(const Entity<EntityDescriptor> &&)		{ throw GCL::Exception("Not implemented"); }*/
+	Entity(const Entity<EntityDescriptor> &)		= delete;
+	Entity(const Entity<EntityDescriptor> &&)		= delete;
 	Entity() = delete;
-	// virtual ~Entity();
 
 	//std::queue<Status>					_pendingStatus;	// [Todo]::[?]
 
@@ -96,25 +97,8 @@ struct Sonic_EntityDescriptor
 	static const std::pair<int, int>	_size;
 };
 
-static const Sonic_EntityDescriptor::Behavior _behavior =
-{
-	{
-		Sonic_EntityDescriptor::Status::Walking,
-		[&](Entity<Sonic_EntityDescriptor> & entity) mutable -> bool
-		{
-			std::cout << "Sonic_EntityDescriptor::_behavior called !" << std::endl;
-			return true;
-		}
-	}
-};
-static const Sonic_EntityDescriptor::Animation _animation =
-{
-	{ Sonic_EntityDescriptor::Status::Walking, std::move(GGE::SPRITE::Serie(Sonic_EntityDescriptor::gSpriteSheet, 6, 0)) }
-};
-static const std::pair<int, int>				_size = std::make_pair(82, 111);
-
-typedef Entity < Sonic_EntityDescriptor > Sonic;
-// using Sonic = Entity < Sonic_EntityDescriptor > ;
+using Sonic = Entity < Sonic_EntityDescriptor > ;
+//typedef Entity < Sonic_EntityDescriptor > Sonic;
 //struct Sonic : public Entity < Sonic_EntityDescriptor >
 //{
 //	Sonic(std::pair<int, int> & pos)
