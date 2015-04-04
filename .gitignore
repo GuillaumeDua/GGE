@@ -12,4 +12,16 @@
 *.log
 *.sql
 *.sqlite
+
+# VC files #
+############
+
 *.sdf
+*.opensdf
+*.suo
+
+# VC compile gen files #
+########################
+
+*.ilk
+* pbd
