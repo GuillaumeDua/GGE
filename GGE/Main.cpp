@@ -14,7 +14,7 @@ int	main(int ac, char *av[])
 		game.SetBackground("SPRITES/bg_blue.png");
 
 		// [TEST]
-		Sonic sonic(std::make_pair(200, 200));
+		Sonic sonic(std::make_pair(200.f, 200.f));
 		sonic.ForceCurrentStatus(Sonic::Status::Walking);
 		game.GetRefEntityManager() += static_cast<IEntity*>(&sonic);
 		// [/TEST]

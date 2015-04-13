@@ -25,7 +25,7 @@ public:
 	using Behavior	= typename EntityDescriptor::Behavior;
 	using Animation = typename EntityDescriptor::Animation;
 
-	Entity(const std::pair<int, int> & pos)
+	Entity(const std::pair<float, float> & pos)
 		: _currentStatus(EntityDescriptor::Default)
 		, _position(pos)
 		, _size(EntityDescriptor::_size)
@@ -37,12 +37,15 @@ public:
 
 	void								Draw(sf::RenderWindow & renderWindow)
 	{
-		sf::Sprite & sprite = *(this->_animations.at(this->_currentStatus).Get());
+		//sf::Sprite & sprite = *(this->_animations.at(this->_currentStatus).Get());
+		sf::Sprite & sprite = *(this->_animations.at(this->_currentStatus).GetCurrent());
+		sprite.setPosition(_position.first, _position.second);
 		sprite.setRotation(_rotation);
 		renderWindow.draw(sprite);
 	}
 	bool								Behave(void)
 	{
+		++(this->_animations.at(this->_currentStatus));
 		return this->_behavior.at(this->_currentStatus)(*this);
 	}
 
@@ -67,7 +70,7 @@ protected:
 	Status								_currentStatus;
 	Behavior							_behavior;
 	Animation							_animations;
-	std::pair<int, int>					_position;
+	std::pair<float, float>				_position;
 	std::pair<int, int>					_size;
 	float								_rotation;
 };

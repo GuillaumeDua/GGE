@@ -63,8 +63,7 @@ namespace GGE
 				{
 					sprites.emplace_back(std::move(sf::Sprite()));
 					sprites.back().setTexture(texture);
-					sprites.back().setTextureRect(sf::IntRect(x * dim.first, y * dim.second, dim.first, dim.second));
-
+					sprites.back().setTextureRect(sf::IntRect(x * (dim.first / qty.first), y * (dim.second / qty.second), dim.first / qty.first, dim.second / qty.second));
 					++it; ++x;
 					if (it % qty.first == 0) { x = 0; ++y; }
 				}
@@ -106,11 +105,28 @@ namespace GGE
 				this->Load(spriteSheet, spriteSheet.GetContent().size(), 0);
 			}
 
-			Serie &									operator+=(const sf::Sprite & sprite)
+			Serie &										operator+=(const sf::Sprite & sprite)
 			{
 				this->_sprites.push_back(sprite);
+				return *this;
 			}
-			std::vector<sf::Sprite>::iterator		Get(void)
+			Serie &										operator++(void)
+			{
+				if (this->_currentSpriteIterator == this->_sprites.end())
+					this->_currentSpriteIterator = this->_sprites.begin();
+				this->_currentSpriteIterator++;
+				return *this;
+			}
+			std::vector<sf::Sprite>::iterator &			GetCurrent(void)
+			{
+				assert(_sprites.size() != 0);
+
+				if (this->_currentSpriteIterator == this->_sprites.end())
+					this->_currentSpriteIterator = this->_sprites.begin();
+
+				return this->_currentSpriteIterator;
+			}
+			std::vector<sf::Sprite>::iterator			Get(void)
 			{
 				assert(_sprites.size() != 0);
 
@@ -119,14 +135,14 @@ namespace GGE
 
 				return this->_currentSpriteIterator++;
 			}
-			void									Reset(void)
+			void										Reset(void)
 			{
 				assert(_sprites.size() != 0);
 				this->_currentSpriteIterator = _sprites.begin();
 			}
 
 		protected:
-			void									Load(const Sheet & spriteSheet, const size_t qty, const size_t offset)
+			void										Load(const Sheet & spriteSheet, const size_t qty, const size_t offset)
 			{
 				assert(offset + qty <= spriteSheet.GetContent().size());
 				for (size_t it = offset; it < qty; ++it)
@@ -134,8 +150,8 @@ namespace GGE
 				this->_currentSpriteIterator = this->_sprites.begin();
 			}
 
-			std::vector<sf::Sprite>					_sprites;
-			std::vector<sf::Sprite>::iterator		_currentSpriteIterator;
+			std::vector<sf::Sprite>						_sprites;
+			std::vector<sf::Sprite>::iterator			_currentSpriteIterator;
 		};
 	}
  }

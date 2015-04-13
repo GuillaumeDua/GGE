@@ -6,7 +6,7 @@
 // [Todo] : Singleton
 struct EntityManager
 {
-	static const size_t	RefreshRate = 15;
+	static const size_t	RefreshRate = 5;
 
 	explicit EntityManager(){}
 	~EntityManager()
@@ -30,7 +30,10 @@ struct EntityManager
 
 	void			Draw(sf::RenderWindow & renderWindow)
 	{
-		std::for_each(this->_content.begin(), this->_content.end(), [&](IEntity * entity){ entity->Draw(renderWindow); });
+		std::for_each(this->_content.begin(), this->_content.end(), [&](IEntity * entity)
+		{
+			entity->Draw(renderWindow); 
+		});
 	}
 	bool			Behave(void)
 	{
