@@ -4,6 +4,7 @@
 # include <SFML\Window\Event.hpp>
 # include <iostream>
 # include <map>
+# include <unordered_map>
 # include <functional>
 # include <exception>
 # include <stdexcept>
@@ -32,8 +33,8 @@ namespace GGE
 	namespace EventHandler
 	{
 		using GameType = Game;
-		using CB = std::function<bool(const sf::Event & event, GameType & game)>;			// CB can be a callback, a closure, obj-binded function members with place-holders etc ...
-		using MapType = std::map < const sf::Event::EventType, CB >;
+		using GameEventCB = std::function<bool(const sf::Event & event, GameType & game)>;			// CB can be a callback, a closure, obj-binded function members with place-holders etc ...
+		using MapType = std::unordered_multimap < const sf::Event::EventType, GameEventCB > ;
 
 		struct Debugger
 		{
@@ -45,6 +46,15 @@ namespace GGE
 
 			static MapType	_eventTypeToCB_map;
 		};
+
+		enum RegisteredCBReturn
+		{
+			OK
+			, FAILURE
+			, REQUIRE_UNREGISTERED
+		};
+		using RegisteredCB = std::function<RegisteredCBReturn(const sf::Event & event)>;
+		using RegistrableEventsMapType = std::unordered_multimap < const sf::Event::EventType, RegisteredCB > ;
 	}
 }
 

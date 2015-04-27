@@ -11,7 +11,8 @@
 
 using namespace GGE;
 
-std::map<const sf::Event::EventType, EventHandler::CB>	EventHandler::Debugger::_eventTypeToCB_map =
+//std::map<const sf::Event::EventType, EventHandler::CB>
+EventHandler::MapType	EventHandler::Debugger::_eventTypeToCB_map =
 {
 	{
 		sf::Event::Closed,

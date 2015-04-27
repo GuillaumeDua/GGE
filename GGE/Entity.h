@@ -25,6 +25,9 @@ public:
 	using Behavior	= typename EntityDescriptor::Behavior;
 	using Animation = typename EntityDescriptor::Animation;
 
+	using PositionType = std::pair < float, float > ;
+	using SizeType = std::pair < int, int > ;
+
 	Entity(const std::pair<float, float> & pos)
 		: _currentStatus(EntityDescriptor::Default)
 		, _position(pos)
@@ -35,6 +38,7 @@ public:
 	{}
 	virtual ~Entity(){}
 
+	// [IEntity]
 	void								Draw(sf::RenderWindow & renderWindow)
 	{
 		//sf::Sprite & sprite = *(this->_animations.at(this->_currentStatus).Get());
@@ -48,7 +52,7 @@ public:
 		++(this->_animations.at(this->_currentStatus));
 		return this->_behavior.at(this->_currentStatus)(*this);
 	}
-
+	// [Status]
 	inline const Status					GetCurrentStatus(void) const
 	{
 		return this->_currentStatus;
@@ -56,6 +60,32 @@ public:
 	inline void							ForceCurrentStatus(const Status status)
 	{
 		this->_currentStatus = status;
+	}
+	// [Basics]
+	inline void							SetRotation(const float value)
+	{
+		this->_rotation = value;
+	}
+	inline void							SetPosition(const PositionType & value)
+	{
+		this->_position = value;
+	}
+	inline void							SetSize(const SizeType & value)
+	{
+		this->_size = value;
+	}
+
+	inline const float &				GetRotation(void) const
+	{
+		return this->_rotation;
+	}
+	inline const PositionType &			GetPosition(void) const
+	{
+		return this->_position;
+	}
+	inline const SizeType &				GetSize(void) const
+	{
+		return this->_size;
 	}
 
 protected:
@@ -70,8 +100,8 @@ protected:
 	Status								_currentStatus;
 	Behavior							_behavior;
 	Animation							_animations;
-	std::pair<float, float>				_position;
-	std::pair<int, int>					_size;
+	PositionType						_position;
+	SizeType							_size;
 	float								_rotation;
 };
 

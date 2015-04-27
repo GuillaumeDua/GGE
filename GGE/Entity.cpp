@@ -12,7 +12,7 @@ const Sonic_EntityDescriptor::Behavior Sonic_EntityDescriptor::_behavior =
 		Sonic_EntityDescriptor::Status::Walking,
 		[&](Entity<Sonic_EntityDescriptor> & entity) mutable -> bool
 		{
-			// std::cout << "Sonic_EntityDescriptor::_behavior called !" << std::endl;
+			 // std::cout << "Sonic_EntityDescriptor::_behavior called !" << std::endl;
 			return true;
 		}
 	}
