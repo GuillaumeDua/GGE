@@ -45,6 +45,7 @@ public:
 		sf::Sprite & sprite = *(this->_animations.at(this->_currentStatus).GetCurrent());
 		sprite.setPosition(_position.first, _position.second);
 		sprite.setRotation(_rotation);
+		sprite.setColor(_color);
 		renderWindow.draw(sprite);
 	}
 	bool								Behave(void)
@@ -65,6 +66,14 @@ public:
 	inline void							SetRotation(const float value)
 	{
 		this->_rotation = value;
+	}
+	inline void							SetColor(const sf::Color & value)
+	{
+		this->_color = value;
+	}
+	inline const sf::Color &			GetColor(void) const
+	{
+		return this->_color;
 	}
 	inline void							SetPosition(const PositionType & value)
 	{
@@ -88,6 +97,8 @@ public:
 		return this->_size;
 	}
 
+
+
 protected:
 	/*Entity(const Entity<EntityDescriptor> &)		{ throw GCL::Exception("Not implemented"); }
 	Entity(const Entity<EntityDescriptor> &&)		{ throw GCL::Exception("Not implemented"); }*/
@@ -103,6 +114,7 @@ protected:
 	PositionType						_position;
 	SizeType							_size;
 	float								_rotation;
+	sf::Color							_color = sf::Color(100,100,100,255);
 };
 
 //
