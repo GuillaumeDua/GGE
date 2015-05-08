@@ -238,6 +238,7 @@ namespace GGE
 		// EventsHandler :
 				EventHandler::MapType *					_EventTypeToCB = &(EventHandler::Debugger::GetTypeToCB_Map());
 				EventHandler::RegistrableEventsMapType	_registeredEvents;
+				// [Todo] : Add CooldownManager / time event handler
 	};
 }
 

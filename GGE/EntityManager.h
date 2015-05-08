@@ -4,6 +4,7 @@
 # include "Entity.h"
 
 // [Todo] : Singleton
+// [Todo] : Multitreads : async futur
 struct EntityManager
 {
 	static const size_t	RefreshRate = 5;

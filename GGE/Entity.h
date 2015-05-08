@@ -5,10 +5,13 @@
 # include <functional>
 # include <queue>
 # include <chrono>
+# include <math.h>
 
 # include "Sprite.h"
 # include "GCL/Exception.h"
 # include <SFML/Graphics.hpp>
+
+static const double PI = 3.14159265;
 
 struct IEntity
 {
@@ -25,8 +28,78 @@ public:
 	using Behavior	= typename EntityDescriptor::Behavior;
 	using Animation = typename EntityDescriptor::Animation;
 
-	using PositionType = std::pair < float, float > ;
+	using PositionType = std::pair < float, float >;
 	using SizeType = std::pair < int, int > ;
+
+	struct MovementType
+	{
+		static inline const float Cos(const float angle) { return static_cast<float>(std::cos(angle * PI / 180.0)); }
+		static inline const float Sin(const float angle) { return static_cast<float>(std::sin(angle * PI / 180.0)); }
+
+		MovementType()
+			: _isActive(false)
+		{}
+		MovementType(const PositionType & destination)
+		{
+			Set(destination);
+		}
+		MovementType & operator=(const PositionType & destination)
+		{
+			Set(destination);
+			return *this;
+		}
+
+		inline const bool	IsActive(void) const
+		{
+			return this->_isActive;
+		}
+		void				Set(const PositionType & destination)
+		{
+			assert(destination.first > 0 && destination.second > 0);
+
+			_destination		= destination;
+			_modifiers.first	= Cos(_destination.first);
+			_modifiers.second	= Sin(_destination.second);
+
+			_isActive = true;
+		}
+		bool				Apply(PositionType & pos, const float speed)
+		{
+			assert(_isActive);
+
+			//bool xP = (pos.first < _destination.first);
+			//bool yP = (pos.second < _destination.second);
+			//pos.first	+= (xP ? 1 : -1) * _modifiers.first * speed;
+			//pos.second	+= (yP ? 1 : -1) * _modifiers.second * speed;
+			//return (_isActive = (xP == (pos.first < _destination.first)));
+
+			float delta = 1.0;
+
+			float dx = _destination.first - pos.first;
+			float dy = _destination.second - pos.second;
+			float dist = std::sqrt(dx*dx + dy*dy);
+
+			if (dist > speed * delta)
+			{
+				dx /= dist;
+				dy /= dist;
+				pos.first	+= dx * speed * delta;
+				pos.second	+= dy * speed * delta;
+				return true;
+			}
+			else
+			{
+				pos.first	= _destination.first;
+				pos.second	= _destination.second;
+				return false;
+			}
+		}
+
+		std::pair<float, float>		_modifiers;		// x sin, y cos
+		PositionType				_destination;
+		bool						_isActive;
+	};
+
 
 	Entity(const std::pair<float, float> & pos)
 		: _currentStatus(EntityDescriptor::Default)
@@ -35,6 +108,7 @@ public:
 		, _behavior(EntityDescriptor::_behavior)
 		, _animations(EntityDescriptor::_animation)
 		, _rotation(.0f)
+		, _speed(5.0)
 	{}
 	virtual ~Entity(){}
 
@@ -50,6 +124,10 @@ public:
 	}
 	bool								Behave(void)
 	{
+		// [Move]
+		if (this->_movement.IsActive())
+			this->_movement.Apply(this->_position, this->_speed);
+		// [IA]
 		++(this->_animations.at(this->_currentStatus));
 		return this->_behavior.at(this->_currentStatus)(*this);
 	}
@@ -79,6 +157,10 @@ public:
 	{
 		this->_position = value;
 	}
+	inline void							SetMovement(const PositionType & target)
+	{
+		this->_movement.Set(target);
+	}
 	inline void							SetSize(const SizeType & value)
 	{
 		this->_size = value;
@@ -97,8 +179,6 @@ public:
 		return this->_size;
 	}
 
-
-
 protected:
 	/*Entity(const Entity<EntityDescriptor> &)		{ throw GCL::Exception("Not implemented"); }
 	Entity(const Entity<EntityDescriptor> &&)		{ throw GCL::Exception("Not implemented"); }*/
@@ -112,6 +192,8 @@ protected:
 	Behavior							_behavior;
 	Animation							_animations;
 	PositionType						_position;
+	float								_speed;
+	MovementType						_movement;
 	SizeType							_size;
 	float								_rotation;
 	sf::Color							_color = sf::Color(100,100,100,255);
