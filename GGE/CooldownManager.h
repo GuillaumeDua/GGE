@@ -14,8 +14,8 @@ namespace GGE
 	{
 		struct CooldownsManager
 		{
-			using CallBack_Type = std::function<void(void)>;
-			using CallBackMap_type = std::multimap < std::chrono::steady_clock::time_point, CallBack_Type >;
+			using CallBack_Type = std::function < void(void) > ;
+			using CallBackMap_type = std::multimap < std::chrono::steady_clock::time_point, CallBack_Type > ;
 
 			CooldownsManager &	operator+=(const std::pair<typename CallBackMap_type::key_type, typename CallBackMap_type::mapped_type> && element)
 			{
@@ -38,107 +38,25 @@ namespace GGE
 		};
 		struct ReconductibleCooldownsManager
 		{
-			using CallBackFunctionType = void(void);
-			using CallBack_Type = std::function<CallBackFunctionType>;
+			using CallBackFunctionType = bool(void);
+			using CallBack_Type = std::function < CallBackFunctionType > ;
 			using EventType = struct
 			{
-				const std::chrono::duration<int>	_duration;
+				const std::chrono::duration<int>	_interval;
 				const CallBack_Type					_cb;
 			};
-			using CallBackMap_type = std::multimap < std::chrono::steady_clock::time_point, EventType >;
+			using CallBackMap_type = std::multimap < std::chrono::steady_clock::time_point, EventType > ;
 
-			struct	AsyncCallBackManager // So, cannot use std::shared_future
-			{
-				using CB_future_TYPE = std::future < void >;
-				using ContainerType = std::vector < CB_future_TYPE >;
-
-				AsyncCallBackManager(){}
-				AsyncCallBackManager(const AsyncCallBackManager &) = delete;
-				AsyncCallBackManager(const AsyncCallBackManager &&) = delete;
-
-				AsyncCallBackManager & operator+=(CallBack_Type && callBack)
-				{
-					_mutex.lock();
-					if (this->_content.size() == 10)
-						std::cerr << "[ALERT] : Attempting to add an event, but already 10 are queued. Aborting." << std::endl;
-					else
-						this->_content.emplace_back(std::move(std::async(std::launch::async, callBack)));
-					_mutex.unlock();
-					return *this;
-				}
-				AsyncCallBackManager & operator+=(CB_future_TYPE && callback)
-				{
-					_mutex.lock();
-					if (this->_content.size() == 10)
-						std::cerr << "[ALERT] : Attempting to add an event, but already 10 are queued. Aborting." << std::endl;
-					else
-						this->_content.emplace_back(std::move(callback));
-					_mutex.unlock();
-					return *this;
-				}
-
-				void	Start(void)
-				{
-					if (this->_isRunning.load() == false)
-						this->_isRunning = true;
-					this->_thread = std::move(std::thread(std::bind(&ReconductibleCooldownsManager::AsyncCallBackManager::Routine, this)));
-				}
-				void	Stop(void)
-				{
-					this->_isRunning = false;
-				}
-				bool	IsRunning(void) const
-				{
-					return this->_isRunning.is_lock_free();
-				}
-				void	ForceGet()
-				{
-					for (auto & elem : this->_content)
-						elem.get();
-					this->_content.clear();
-				}
-
-			protected:
-
-				void		Routine()
-				{
-					while (this->_isRunning.load() == true)
-					{
-						_mutex.lock();
-						DEBUG_INSTRUCTION(const size_t size_before_remove = this->_content.size();)
-							ContainerType::iterator remove_token = std::remove_if(this->_content.begin(), this->_content.end(), [&](ContainerType::value_type & future) -> bool { return (future.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready); });
-						ContainerType new_content;//(this->_content.begin(), remove_token);
-						for (ContainerType::iterator it = this->_content.begin(); it != remove_token; ++it)
-							new_content.emplace_back(std::move(*it));
-						this->_content = std::move(new_content);
-						std::cout
-							<< "[+] : Event queue qty : " << _content.size()
-							<< DEBUG_INSTRUCTION(", " << size_before_remove - this->_content.size() << " removed at last check." << ) std::endl;
-						_mutex.unlock();
-						std::this_thread::sleep_for(std::chrono::seconds(1));
-					}
-					std::cout << "[+] : [ReconductibleCooldownsManager::AsyncCallBackManager::Routine] : Stoped" << std::endl;
-				}
-
-				ContainerType		_content;
-				std::atomic<bool>	_isRunning = false;
-				std::thread			_thread;
-				static std::mutex	_mutex;
-			}		static _asyncCallBackManager;
-
-			ReconductibleCooldownsManager()
-			{
-				_asyncCallBackManager.Start();
-			}
+			ReconductibleCooldownsManager() = default;
 			ReconductibleCooldownsManager(const ReconductibleCooldownsManager &) = delete;
 			ReconductibleCooldownsManager(const ReconductibleCooldownsManager &&) = delete;
 
-			ReconductibleCooldownsManager &	operator+=(const std::pair<typename CallBackMap_type::key_type, typename CallBackMap_type::mapped_type> && element)
+			ReconductibleCooldownsManager &			operator+=(const EventType && element)
 			{
-				this->_callbacks.emplace(element);
+				this->_callbacks.insert(std::make_pair(std::chrono::steady_clock::now() + element._interval, element));
 				return *this;
 			}
-			void							Check(void)
+			void									Check(void)
 			{
 				std::chrono::steady_clock::time_point		current = std::chrono::steady_clock::now();
 				CallBackMap_type newContent;
@@ -147,9 +65,8 @@ namespace GGE
 				auto max = this->_callbacks.lower_bound(current);
 				for (auto it = this->_callbacks.begin(); it != max; ++it)
 				{
-					ReconductibleCooldownsManager::_asyncCallBackManager += std::async(std::launch::async, it->second._cb);
-					// std::future<void> async_future = std::async(std::launch::async, it->second._cb);
-					newContent.emplace(std::move(std::make_pair(it->first + it->second._duration, it->second)));
+					if (it->second._cb())
+						newContent.emplace(std::move(std::make_pair(it->first + it->second._interval, it->second)));
 				}
 				this->_callbacks = std::move(newContent);
 				this->_last_check = current;
@@ -159,7 +76,7 @@ namespace GGE
 			CallBackMap_type						_callbacks;
 		};
 	}
- }
+}
 #endif // __GGE_EVENTS_CDMANAGER__
 
 ///

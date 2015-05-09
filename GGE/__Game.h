@@ -10,9 +10,12 @@
 
 # include "GCL/Exception.h"
 # include "RENDERING/Types.h"
-# include "EventHandler.h"
-# include "EntityManager.h"
 # include "Screen.h"
+
+# include "EventHandler.h"
+# include "CooldownManager.h"
+# include "EntityManager.h"
+
 
 // Window::SetFramerateLimit => vertical sync ?
 // screenshots => sf::Image Scren = App.Capture()
@@ -40,7 +43,7 @@ namespace GGE
 		Game(const Game &&) = delete;
 		~Game(){}
 
-		void											Initialize(void)
+		void												Initialize(void)
 		{
 			// _window.setFramerateLimit
 			// _window.getView
@@ -49,7 +52,7 @@ namespace GGE
 		}
 
 		// Run [-> I cld use my own Runnable class]
-		bool											Start(void)
+		bool												Start(void)
 		{
 			if (this->_IsRunning)
 				return false;
@@ -80,47 +83,51 @@ namespace GGE
 			this->_window.close();
 			return ret;
 		}
-		bool											Stop(void)
+		bool												Stop(void)
 		{
 			this->_IsRunning = false;
 		}
 
 		// Rendering
-		inline void										SetBackground(const Sprite & sprite)
+		inline void											SetBackground(const Sprite & sprite)
 		{
 			this->_backgroundSprite = sprite;
 		}
-		inline void										SetBackground(const std::string & texture_path)
+		inline void											SetBackground(const std::string & texture_path)
 		{
 			if (!(_bufBatckgroundTexture.loadFromFile(texture_path)))
 				throw GCL::Exception("[Error] : GGE::Game::SetBackground : Cannot load texture from file : " + texture_path);
 			this->_backgroundSprite.setTexture(_bufBatckgroundTexture);
 		}
-		inline void										SetBackground(const Texture & texture)
+		inline void											SetBackground(const Texture & texture)
 		{
 			this->_backgroundSprite.setTexture(texture);
 		}
 		// Screen
-		Game &											operator+=(Screen && screen)
+		Game &												operator+=(Screen && screen)
 		{
 			throw GCL::Exception("[Error] : Not implemented");
 		}
 		// Events handling
-		inline const EventHandler::MapType &			GetEventHandler_map(void)
+		inline const EventHandler::MapType &				GetEventHandler_map(void)
 		{
 			return *(this->_EventTypeToCB);
 		}
-		inline EventHandler::RegistrableEventsMapType &	GetEventRegisteringSytem(void)
+		inline EventHandler::RegistrableEventsMapType &		GetEventRegisteringSytem(void)
 		{
 			return _registeredEvents;
 		}
+		inline  Events::ReconductibleCooldownsManager &		GetCooldownManagerSystem(void)
+		{
+			return this->_cooldownManager;
+		}
 		template <class T_EventHandler>
-		inline void										SetEventHandler(void)
+		inline void											SetEventHandler(void)
 		{
 			std::cout << "Switching event handler from [" << &(this->_EventTypeToCB) << "] to : [" << &(T_EventHandler::GetTypeToCB_Map()) << ']' << std::endl;
 			this->_EventTypeToCB = &(T_EventHandler::GetTypeToCB_Map());
 		}
-		bool											HandleEvent(const sf::Event & event)
+		bool												HandleEvent(const sf::Event & event)
 		{
 			using GameEventRangeIt = std::pair < EventHandler::MapType::const_iterator, EventHandler::MapType::const_iterator >;
 			using RegisteredEventRangeIt = std::pair < EventHandler::RegistrableEventsMapType::iterator, EventHandler::RegistrableEventsMapType::iterator >;
@@ -149,7 +156,6 @@ namespace GGE
 					break;
 				}
 			}
-
 			// Unregistering
 			while (toUnregisterEventsQueue.size() != 0)
 			{
@@ -158,26 +164,31 @@ namespace GGE
 			}
 			return true;
 		}
-		void											ManageEvents(void)
+		void												ManageEvents(void)
 		{
+			// [Cooldown events handling]
+			this->_cooldownManager.Check();
+
+			// [Ui events]
 			sf::Event event;
 			while (this->_window.pollEvent(event))
-				if (this->HandleEvent(event) == false) break;
+				if (this->HandleEvent(event) == false)
+					throw std::runtime_error("[UnexpectedException]::[ManageEvents] : Failure while handling an event");
 		}
 		// Entities 
-		inline EntityManager &							GetRefEntityManager(void)
+		inline EntityManager &								GetRefEntityManager(void)
 		{
 			return this->_entityManager;
 		}
 		// [Todo] : protected
-		void											ManageEntities(void)	// [Todo] : protected
+		void												ManageEntities(void)	// [Todo] : protected
 		{
 			if (this->_entityManager.TicksUp() && !(this->_entityManager.Behave()))
 				throw GCL::Exception("[Error] : Game::ManageEntities -> IEntity::Behave call failed");
 			this->_entityManager.Draw(this->_window);
 		}
 		// Loop
-		bool											Update(void)
+		bool												Update(void)
 		{
 			try
 			{
@@ -194,7 +205,7 @@ namespace GGE
 
 			return true;
 		}
-		bool											Loop(void)
+		bool												Loop(void)
 		{
 			sf::Clock	clock;
 			sf::Time	diffTimeCt = sf::Time::Zero;
@@ -225,20 +236,20 @@ namespace GGE
 
 		// Rendering :
 				// [Todo] : Use GGE::Screenhere
-				RenderWindow							_window;
-				Sprite									_backgroundSprite;
-				Texture									_bufBatckgroundTexture; // To use as buffer. [Todo]=[To_test] -> SetSmooth
+				RenderWindow								_window;
+				Sprite										_backgroundSprite;
+				Texture										_bufBatckgroundTexture; // To use as buffer. [Todo]=[To_test] -> SetSmooth
 
 		// Collision engine :
 				// [Todo] : CollisionEngine
 
 		// Entities :
-				EntityManager							_entityManager;
+				EntityManager								_entityManager;
 
 		// EventsHandler :
-				EventHandler::MapType *					_EventTypeToCB = &(EventHandler::Debugger::GetTypeToCB_Map());
-				EventHandler::RegistrableEventsMapType	_registeredEvents;
-				// [Todo] : Add CooldownManager / time event handler
+				EventHandler::MapType *						_EventTypeToCB = &(EventHandler::Debugger::GetTypeToCB_Map());
+				EventHandler::RegistrableEventsMapType		_registeredEvents;
+				GGE::Events::ReconductibleCooldownsManager	_cooldownManager;
 	};
 }
 

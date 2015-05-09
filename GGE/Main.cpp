@@ -18,14 +18,9 @@ int	main(int ac, char *av[])
 		game.GetRefEntityManager() += static_cast<IEntity*>(&sonic);
 
 		// [Fun] : Funny event registering system test
-		int		callIt = 0;
-		Sonic *	sonicPtr = &sonic;
-		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseMoved, [&, sonicPtr](const sf::Event & event) mutable -> GGE::EventHandler::RegisteredCBReturn
-		{
-			sonicPtr->SetRotation(static_cast<float>(event.mouseMove.x));
-			sonicPtr->SetPosition(std::make_pair(sonicPtr->GetPosition().first, static_cast<float>(event.mouseMove.y)));
-			return GGE::EventHandler::RegisteredCBReturn::OK;
-		}));
+		int		callIt		= 0;
+		Sonic *	sonicPtr	= &sonic;
+
 		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseWheelMoved, [&, sonicPtr](const sf::Event & event) mutable -> GGE::EventHandler::RegisteredCBReturn
 		{
 			sf::Color color = sonicPtr->GetColor();
@@ -51,23 +46,15 @@ int	main(int ac, char *av[])
 			std::cout << "Putain, mais te barre pas" << std::endl;
 			return GGE::EventHandler::RegisteredCBReturn::OK;
 		}));
-
-		GGE::Game * gamePtr = &game;
-		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseButtonPressed, [&, gamePtr](const sf::Event & event) mutable -> GGE::EventHandler::RegisteredCBReturn
+		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseButtonPressed, [&, sonicPtr](const sf::Event & event) mutable -> GGE::EventHandler::RegisteredCBReturn
 		{
-			
-			Sonic * sonic = new Sonic(std::make_pair(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)));
-			sonic->ForceCurrentStatus(Sonic::Status::Walking);
-			game.GetRefEntityManager() += static_cast<IEntity*>(sonic);
-
-			game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseMoved, [&, sonic](const sf::Event & event) mutable -> GGE::EventHandler::RegisteredCBReturn
-			{
-				sonic->SetRotation(static_cast<float>(event.mouseMove.x));
-				return GGE::EventHandler::RegisteredCBReturn::OK;
-			}));
+			sonicPtr->SetMovement(std::make_pair(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)));
 
 			return GGE::EventHandler::RegisteredCBReturn::OK;
 		}));
+
+		// [Cooldown Manager test]
+		game.GetCooldownManagerSystem() += GGE::Events::ReconductibleCooldownsManager::EventType({ std::chrono::seconds(1), [](){ std::cout << "CD done !" << std::endl; return true; } });
 
 // [/TEST]
 
