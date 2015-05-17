@@ -121,7 +121,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CooldownManager.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EventHandler.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -131,6 +130,8 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="GCL\Exception.h" />
     <ClInclude Include="GCL\Preprocessor.h" />
+    <ClInclude Include="ICollisionEngine.h" />
+    <ClInclude Include="IEntity.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="__Game.h" />
   </ItemGroup>

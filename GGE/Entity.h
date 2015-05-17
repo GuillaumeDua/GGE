@@ -10,16 +10,12 @@
 # include "Sprite.h"
 # include "GCL/Exception.h"
 # include <SFML/Graphics.hpp>
+# include "IEntity.h"
 
 static const double PI = 3.14159265;
 
-struct IEntity
-{
-	virtual void	Draw(sf::RenderWindow & renderWindow) = 0;
-	virtual bool	Behave(void)						  = 0;
-};
 
-template <typename EntityDescriptor> class Entity : public IEntity	//, Garbageable< Entity< EntityDescriptor > >
+template <typename EntityDescriptor> class Entity : public IEntity, public HitBox	//, Garbageable< Entity< EntityDescriptor > >
 {
 public:
 	using ThisType = typename Entity < EntityDescriptor > ;
@@ -27,9 +23,6 @@ public:
 	using Status	= typename EntityDescriptor::Status;
 	using Behavior	= typename EntityDescriptor::Behavior;
 	using Animation = typename EntityDescriptor::Animation;
-
-	using PositionType = std::pair < float, float >;
-	using SizeType = std::pair < int, int > ;
 
 	struct MovementType
 	{
@@ -49,11 +42,11 @@ public:
 			return *this;
 		}
 
-		inline const bool	IsActive(void) const
+		inline const bool				IsActive(void) const
 		{
 			return this->_isActive;
 		}
-		void				Set(const PositionType & destination)
+		void							Set(const PositionType & destination)
 		{
 			assert(destination.first > 0 && destination.second > 0);
 
@@ -63,7 +56,7 @@ public:
 
 			_isActive = true;
 		}
-		bool				Apply(PositionType & pos, const float speed)
+		bool							Apply(PositionType & pos, const float speed)
 		{
 			assert(_isActive);
 
@@ -95,16 +88,15 @@ public:
 			}
 		}
 
-		std::pair<float, float>		_modifiers;		// x sin, y cos
-		PositionType				_destination;
-		bool						_isActive;
+		std::pair<float, float>			_modifiers;		// x sin, y cos
+		PositionType					_destination;
+		bool							_isActive;
 	};
 
 
 	Entity(const std::pair<float, float> & pos)
 		: _currentStatus(EntityDescriptor::Default)
-		, _position(pos)
-		, _size(EntityDescriptor::_size)
+		, HitBox(pos, EntityDescriptor::_size)
 		, _behavior(EntityDescriptor::_behavior)
 		, _animations(EntityDescriptor::_animation)
 		, _rotation(.0f)
@@ -153,35 +145,17 @@ public:
 	{
 		return this->_color;
 	}
-	inline void							SetPosition(const PositionType & value)
-	{
-		this->_position = value;
-	}
 	inline void							SetMovement(const PositionType & target)
 	{
 		this->_movement.Set(target);
-	}
-	inline void							SetSize(const SizeType & value)
-	{
-		this->_size = value;
 	}
 
 	inline const float &				GetRotation(void) const
 	{
 		return this->_rotation;
 	}
-	inline const PositionType &			GetPosition(void) const
-	{
-		return this->_position;
-	}
-	inline const SizeType &				GetSize(void) const
-	{
-		return this->_size;
-	}
 
 protected:
-	/*Entity(const Entity<EntityDescriptor> &)		{ throw GCL::Exception("Not implemented"); }
-	Entity(const Entity<EntityDescriptor> &&)		{ throw GCL::Exception("Not implemented"); }*/
 	Entity(const ThisType &)		= delete;
 	Entity(const ThisType &&)		= delete;
 	Entity() = delete;
@@ -191,10 +165,8 @@ protected:
 	Status								_currentStatus;
 	Behavior							_behavior;
 	Animation							_animations;
-	PositionType						_position;
 	float								_speed;
 	MovementType						_movement;
-	SizeType							_size;
 	float								_rotation;
 	sf::Color							_color = sf::Color(100,100,100,255);
 };
@@ -227,13 +199,5 @@ struct Sonic_EntityDescriptor
 };
 
 using Sonic = Entity < Sonic_EntityDescriptor > ;
-//typedef Entity < Sonic_EntityDescriptor > Sonic;
-//struct Sonic : public Entity < Sonic_EntityDescriptor >
-//{
-//	Sonic(std::pair<int, int> & pos)
-//		: Entity < Sonic_EntityDescriptor >(pos)
-//	{}
-//};
-
 
 #endif // __GGE_ENTITY__
