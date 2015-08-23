@@ -4,14 +4,8 @@
 # include <map>
 # include <SFML/Graphics/RenderWindow.hpp>
 
-struct IEntity
-{
-	virtual void							Draw(sf::RenderWindow & renderWindow) = 0;
-	virtual bool							Behave(void) = 0;
-};
-
 //
-// [Todo] : OnCollisionPolicy
+// [Todo] : OnCollisionPolicy [?]
 //
 struct HitBox
 {
@@ -36,26 +30,62 @@ struct HitBox
 		this->_size = hb.GetSize();
 	}
 
-	inline const PositionType &			GetPosition(void) const
+	inline const PositionType &					GetPosition(void) const
 	{
 		return this->_position;
 	}
-	inline const SizeType &				GetSize(void) const
+	inline const SizeType &						GetSize(void) const
 	{
 		return this->_size;
 	}
-	inline void							SetPosition(const PositionType & value)
+	inline void									SetPosition(const PositionType & value)
 	{
 		this->_position = value;
 	}
-	inline void							SetSize(const SizeType & value)
+	inline void									SetSize(const SizeType & value)
 	{
 		this->_size = value;
 	}
 
+	void										ClearCollisions(void)
+	{
+		_collisions.clear();
+	}
+	bool										HasCollisions(void)
+	{
+		return !(_collisions.empty());
+	}
+	void										NotifyCollision(const HitBox & hb)
+	{
+		this->NotifyCollision(&hb);
+	}
+	void										NotifyCollision(const HitBox * hb)
+	{
+		_collisions.push_back(hb);
+	}
+	inline const std::vector<const HitBox*> &	GetCollisions(void) const
+	{
+		return _collisions;
+	}
+	inline const bool							DoesRequierUnregisterFromCollisionEngine(void) const
+	{
+		return _unregisterFromCollisionEngineRequiered;
+	}
+
 protected:
-	PositionType						_position;
-	SizeType							_size;
+	PositionType								_position;
+	SizeType									_size;
+
+	std::vector<const HitBox *>					_collisions;
+	bool										_unregisterFromCollisionEngineRequiered = false;
 };
+
+struct IEntity : public HitBox
+{
+	virtual void							Draw(sf::RenderWindow & renderWindow) = 0;
+	virtual bool							Behave(void) = 0;
+};
+
+
 
 #endif // __IENTITY__

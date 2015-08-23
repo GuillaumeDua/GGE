@@ -14,8 +14,7 @@
 
 static const double PI = 3.14159265;
 
-
-template <typename EntityDescriptor> class Entity : public IEntity, public HitBox	//, Garbageable< Entity< EntityDescriptor > >
+template <typename EntityDescriptor> class Entity : public IEntity	//, Garbageable< Entity< EntityDescriptor > >
 {
 public:
 	using ThisType = typename Entity < EntityDescriptor > ;
@@ -24,6 +23,17 @@ public:
 	using Behavior	= typename EntityDescriptor::Behavior;
 	using Animation = typename EntityDescriptor::Animation;
 
+	enum DirectionType
+	{
+		NORTH = 0x01
+		, EAST = 0x02
+		, WEST = 0x04
+		, SOUTH = 0x08
+		, NORTH_EAST = NORTH + EAST	// 0x03
+		, NORTH_WEST = NORTH + WEST	// 0x05
+		, SOUTH_EAST = SOUTH + EAST // 0x10
+		, SOUTH_WEST = SOUTH + WEST // 0x12
+	};
 	struct MovementType
 	{
 		static inline const float Cos(const float angle) { return static_cast<float>(std::cos(angle * PI / 180.0)); }
