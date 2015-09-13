@@ -14,7 +14,11 @@
 
 static const double PI = 3.14159265;
 
-template <typename EntityDescriptor> class Entity : public IEntity	//, Garbageable< Entity< EntityDescriptor > >
+template <typename EntityDescriptor>
+class Entity
+	: public IEntity
+	, public HitBox
+	//, Garbageable< Entity< EntityDescriptor > >
 {
 public:
 	using ThisType = typename Entity < EntityDescriptor > ;
@@ -23,7 +27,7 @@ public:
 	using Behavior	= typename EntityDescriptor::Behavior;
 	using Animation = typename EntityDescriptor::Animation;
 
-	enum DirectionType
+	enum class DirectionType : char
 	{
 		NORTH = 0x01
 		, EAST = 0x02

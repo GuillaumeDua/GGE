@@ -16,6 +16,8 @@
 # include "CooldownManager.h"
 # include "EntityManager.h"
 
+# include "ICollisionEngine.h"
+
 
 // Window::SetFramerateLimit => vertical sync ?
 // screenshots => sf::Image Scren = App.Capture()
@@ -28,13 +30,9 @@ namespace GGE
 	class Game final	//	[Todo] : Replace final by a game-to-game inheritance (e.g final logic into a pure virtual [?])
 	{
 	public:
-		Game()
-			: _window(sf::VideoMode(800, 600, 32), "GEE Rendering")
-		{
-			this->Initialize();
-		}
+		Game() = delete;
 		Game(const size_t TicksPerSec)
-			: _TicksPerSec(TicksPerSec)
+			: _ticksSystem(TicksPerSec)
 			, _window(sf::VideoMode(800, 600, 32), "GEE Rendering")
 		{
 			this->Initialize();
@@ -58,7 +56,7 @@ namespace GGE
 				return false;
 			this->_IsRunning = true;
 
-			std::cout << "[+] Start ... framerate set at : " << FPS << std::endl;
+			std::cout << "[+] Start ... framerate set at : " << _ticksSystem.FPS << std::endl;
 			bool ret(true);
 
 			try
@@ -215,24 +213,38 @@ namespace GGE
 				sf::Time elaspedTime = clock.restart();
 				diffTimeCt += elaspedTime;
 
-				while (this->_IsRunning && diffTimeCt > TimePerFrame)
+				while (this->_IsRunning && diffTimeCt > _ticksSystem.TimePerFrame)
 				{
-					diffTimeCt -= TimePerFrame;
+					diffTimeCt -= _ticksSystem.TimePerFrame;
 					if (this->Update() == false) return false;
 				}
 			}
 			return true;
 		}
 		// Ticks :
-		const float										FPS = 60.f;
-		const sf::Time 									TimePerFrame = sf::seconds(1.f / FPS);
 
-		static	const size_t							DEFAULT_TICKS_PER_SEC	= 50;
-		static	const size_t							DEFAULT_FRAME_SKIP		= 10;
-				const size_t							_TicksPerSec			= DEFAULT_TICKS_PER_SEC;
-				const size_t							_TicksToSkip			= 1000 / _TicksPerSec;
-				const size_t							_MaxFameSkip			= DEFAULT_FRAME_SKIP;
-				std::atomic<bool>						_IsRunning				= false; // volatile
+		struct TicksSystem
+		{
+			TicksSystem(const size_t TicksPerSec)
+				: _TicksPerSec(TicksPerSec)
+			{}
+			TicksSystem(const TicksSystem &) = default;
+			TicksSystem & operator=(const TicksSystem &) = delete;
+			~TicksSystem() = default;
+
+			const float										FPS = 60.f;
+			const sf::Time 									TimePerFrame = sf::seconds(1.f / FPS);
+
+			static	const size_t							DEFAULT_TICKS_PER_SEC	= 50;
+			static	const size_t							DEFAULT_FRAME_SKIP		= 10;
+					const size_t							_TicksPerSec			= DEFAULT_TICKS_PER_SEC;
+					const size_t							_TicksToSkip			= 1000 / _TicksPerSec;
+					const size_t							_MaxFameSkip			= DEFAULT_FRAME_SKIP;
+					
+		}							_ticksSystem;
+
+		// Runnable :
+				std::atomic<bool>							_IsRunning = false; // volatile
 
 		// Rendering :
 				// [Todo] : Use GGE::Screenhere
@@ -242,6 +254,7 @@ namespace GGE
 
 		// Collision engine :
 				// [Todo] : CollisionEngine
+				CollisionEngine::Interface *				_collisionEngine = new CollisionEngine::Implem::Linear<CollisionEngine::Algorythms::AABB>();
 
 		// Entities :
 				EntityManager								_entityManager;

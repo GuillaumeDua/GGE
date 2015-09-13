@@ -80,7 +80,7 @@ protected:
 	bool										_unregisterFromCollisionEngineRequiered = false;
 };
 
-struct IEntity : public HitBox
+struct IEntity //: public HitBox
 {
 	virtual void							Draw(sf::RenderWindow & renderWindow) = 0;
 	virtual bool							Behave(void) = 0;

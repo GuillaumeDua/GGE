@@ -6,7 +6,7 @@
 
 int	main(int ac, char *av[])
 {
-	GGE::Game game;
+	GGE::Game game(60);
 
 	try
 	{

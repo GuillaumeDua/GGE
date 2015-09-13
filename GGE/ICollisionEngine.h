@@ -24,14 +24,11 @@ namespace CollisionEngine
 		};
 	}
 
-	template <typename CollisionAlgorythm>
 	struct Interface
 	{
-		using T_CollisionAlgorythm = CollisionAlgorythm;
-
 		// [Register entities]
 		virtual Interface &			operator+=(std::vector<HitBox*> &) = 0;
-		virtual Interface &			operator+=(Entity &) = 0;
+		virtual Interface &			operator+=(HitBox &) = 0;
 		virtual void				RemoveUnregistered(void) = 0;
 		// [Basis]
 		virtual void				Calculate(void) = 0;
@@ -40,15 +37,18 @@ namespace CollisionEngine
 
 	namespace Implem
 	{
-		struct Linear : public Interface<Algorythms::AABB>
+		template <typename T_CollisionAlgorythm>
+		struct Linear : public Interface
 		{
 			virtual Interface &		operator+=(std::vector<HitBox*> & hbs)
 			{
 				this->_entities.insert(_entities.end(), hbs.begin(), hbs.end());
+				return *this;
 			}
-			virtual Interface &		operator+=(IEntity & e)
+			virtual Interface &		operator+=(HitBox & e)
 			{
 				this->_entities.push_back(&e);
+				return *this;
 			}
 			void					RemoveUnregistered(void)
 			{
@@ -81,10 +81,10 @@ namespace CollisionEngine
 		//	|---------|
 		//	| SW | SE |
 		//	-----------
-		template <int deepth>
-		struct QuadTree : public Interface<Algorythms::AABB>, public HitBox
+		template <typename T_CollsionAlgorythm, int deepth>
+		struct QuadTree : public Interface, public HitBox
 		{
-			using Node = QuadTree < deepth - 1 > ;
+			using Node = QuadTree < T_CollsionAlgorythm, deepth - 1 >;
 			using NodePtr = Node*;
 
 			const bool	IsLast = (deepth == 0);
