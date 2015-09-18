@@ -13,7 +13,8 @@ int	main(int ac, char *av[])
 		game.SetBackground("SPRITES/bg_blue.png");	// SPRITES/Sonic_spritesSheet.png
 
 // [TEST]
-		Sonic sonic(std::make_pair(200.f, 200.f));
+// 1 : Controlable
+		Sonic sonic = std::move(std::make_pair( 200.f, 200.f ));
 		sonic.ForceCurrentStatus(Sonic::Status::Walking);
 		game.GetRefEntityManager() += static_cast<IEntity*>(&sonic);
 
@@ -49,9 +50,13 @@ int	main(int ac, char *av[])
 		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseButtonPressed, [&, sonicPtr](const sf::Event & event) mutable -> GGE::EventHandler::RegisteredCBReturn
 		{
 			sonicPtr->SetMovement(std::make_pair(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)));
-
 			return GGE::EventHandler::RegisteredCBReturn::OK;
 		}));
+
+// 2 : IA
+		Sonic sonicIA({ 400.f, 400.f });
+		sonicIA.ForceCurrentStatus(Sonic::Status::Walking);
+		game.GetRefEntityManager() += static_cast<IEntity*>(&sonicIA);
 
 		// [Cooldown Manager test]
 		game.GetCooldownManagerSystem() += GGE::Events::ReconductibleCooldownsManager::EventType({ std::chrono::seconds(1), [](){ std::cout << "CD done !" << std::endl; return true; } });

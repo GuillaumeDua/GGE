@@ -181,9 +181,12 @@ namespace GGE
 		// [Todo] : protected
 		void												ManageEntities(void)	// [Todo] : protected
 		{
+			// todo : Reactoring ?
+
 			if (this->_entityManager.TicksUp() && !(this->_entityManager.Behave()))
 				throw GCL::Exception("[Error] : Game::ManageEntities -> IEntity::Behave call failed");
 			this->_entityManager.Draw(this->_window);
+			
 		}
 		// Loop
 		bool												Update(void)
@@ -221,8 +224,8 @@ namespace GGE
 			}
 			return true;
 		}
-		// Ticks :
 
+		// Ticks :
 		struct TicksSystem
 		{
 			TicksSystem(const size_t TicksPerSec)
@@ -257,7 +260,9 @@ namespace GGE
 				CollisionEngine::Interface *				_collisionEngine = new CollisionEngine::Implem::Linear<CollisionEngine::Algorythms::AABB>();
 
 		// Entities :
-				EntityManager								_entityManager;
+				// EntityManager								_entityManager;
+				using T_EntityVector = std::vector<IEntity*>;
+				T_EntityVector								_entities;
 
 		// EventsHandler :
 				EventHandler::MapType *						_EventTypeToCB = &(EventHandler::Debugger::GetTypeToCB_Map());

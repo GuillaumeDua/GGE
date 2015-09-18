@@ -19,7 +19,8 @@ const Sonic_EntityDescriptor::Behavior Sonic_EntityDescriptor::_behavior =
 };
 const Sonic_EntityDescriptor::Animation Sonic_EntityDescriptor::_animation =
 {
-	{ Sonic_EntityDescriptor::Status::Walking, std::move(GGE::SPRITE::Serie(Sonic_EntityDescriptor::gSpriteSheet, 6, 0)) }
+		{ Sonic_EntityDescriptor::Status::Walking, std::move(GGE::SPRITE::Serie(Sonic_EntityDescriptor::gSpriteSheet, 6, 0)) }
+	//,	{ Sonic_EntityDescriptor::Status::Walking, std::move(GGE::SPRITE::Serie(Sonic_EntityDescriptor::gSpriteSheet, 6, 0)) }
 };
 const std::pair<int, int>				Sonic_EntityDescriptor::_size = std::make_pair(82, 111);
 

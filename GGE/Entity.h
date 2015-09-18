@@ -21,10 +21,10 @@ class Entity
 	//, Garbageable< Entity< EntityDescriptor > >
 {
 public:
-	using ThisType = typename Entity < EntityDescriptor > ;
+	using ThisType = typename Entity < EntityDescriptor >;
 
-	using Status	= typename EntityDescriptor::Status;
-	using Behavior	= typename EntityDescriptor::Behavior;
+	using Status = typename EntityDescriptor::Status;
+	using Behavior = typename EntityDescriptor::Behavior;
 	using Animation = typename EntityDescriptor::Animation;
 
 	enum class DirectionType : char
@@ -64,9 +64,9 @@ public:
 		{
 			assert(destination.first > 0 && destination.second > 0);
 
-			_destination		= destination;
-			_modifiers.first	= Cos(_destination.first);
-			_modifiers.second	= Sin(_destination.second);
+			_destination = destination;
+			_modifiers.first = Cos(_destination.first);
+			_modifiers.second = Sin(_destination.second);
 
 			_isActive = true;
 		}
@@ -90,14 +90,14 @@ public:
 			{
 				dx /= dist;
 				dy /= dist;
-				pos.first	+= dx * speed * delta;
-				pos.second	+= dy * speed * delta;
+				pos.first += dx * speed * delta;
+				pos.second += dy * speed * delta;
 				return true;
 			}
 			else
 			{
-				pos.first	= _destination.first;
-				pos.second	= _destination.second;
+				pos.first = _destination.first;
+				pos.second = _destination.second;
 				return false;
 			}
 		}
@@ -114,21 +114,22 @@ public:
 		, _behavior(EntityDescriptor::_behavior)
 		, _animations(EntityDescriptor::_animation)
 		, _rotation(.0f)
-		, _speed(5.0)
+		, _speed(15.0f)
 	{}
 	virtual ~Entity(){}
 
 	// [IEntity]
-	void								Draw(sf::RenderWindow & renderWindow)
+	void									Draw(sf::RenderWindow & renderWindow)
 	{
 		//sf::Sprite & sprite = *(this->_animations.at(this->_currentStatus).Get());
 		sf::Sprite & sprite = *(this->_animations.at(this->_currentStatus).GetCurrent());
 		sprite.setPosition(_position.first, _position.second);
 		sprite.setRotation(_rotation);
 		sprite.setColor(_color);
+		sprite.setScale(_scale.first, _scale.second);
 		renderWindow.draw(sprite);
 	}
-	bool								Behave(void)
+	bool									Behave(void)
 	{
 		// [Move]
 		if (this->_movement.IsActive())
@@ -138,33 +139,43 @@ public:
 		return this->_behavior.at(this->_currentStatus)(*this);
 	}
 	// [Status]
-	inline const Status					GetCurrentStatus(void) const
+	inline const Status						GetCurrentStatus(void) const
 	{
 		return this->_currentStatus;
 	}
-	inline void							ForceCurrentStatus(const Status status)
+	inline void								ForceCurrentStatus(const Status status)
 	{
 		this->_currentStatus = status;
 	}
 	// [Basics]
-	inline void							SetRotation(const float value)
+	inline void								SetRotation(const float value)
 	{
 		this->_rotation = value;
 	}
-	inline void							SetColor(const sf::Color & value)
+	inline void								SetColor(const sf::Color & value)
 	{
 		this->_color = value;
 	}
-	inline const sf::Color &			GetColor(void) const
+	inline const sf::Color &				GetColor(void) const
 	{
 		return this->_color;
 	}
-	inline void							SetMovement(const PositionType & target)
+	inline void								SetMovement(const PositionType & target)
 	{
+		// flip
+		const float originalXScale = _scale.first;
+		_scale = { static_cast<float>(target.first) < _position.first ? -1.0f : 1.0f, 1.0f };
+		if (_scale.first != originalXScale)
+			this->SetPosition({ (_scale.first == -1.0f
+			? _position.first + _size.first
+			: _position.first - _size.first
+			)
+			, _position.second
+		});
 		this->_movement.Set(target);
 	}
 
-	inline const float &				GetRotation(void) const
+	inline const float &					GetRotation(void) const
 	{
 		return this->_rotation;
 	}
@@ -176,13 +187,14 @@ protected:
 
 	//std::queue<Status>					_pendingStatus;	// [Todo]::[?]
 
-	Status								_currentStatus;
-	Behavior							_behavior;
-	Animation							_animations;
-	float								_speed;
-	MovementType						_movement;
-	float								_rotation;
-	sf::Color							_color = sf::Color(100,100,100,255);
+	Status									_currentStatus;
+	Behavior								_behavior;
+	Animation								_animations;
+	std::pair<float, float>					_scale = { 1.0f, 1.0f };
+	float									_speed;
+	MovementType							_movement;
+	float									_rotation;
+	sf::Color								_color = sf::Color(100,100,100,255);
 };
 
 //
