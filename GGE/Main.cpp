@@ -3,7 +3,6 @@
 #include "GCL/Preprocessor.h"
 #include "__Game.h"
 
-
 int	main(int ac, char *av[])
 {
 	GGE::Game game(60);
@@ -22,7 +21,7 @@ int	main(int ac, char *av[])
 		int		callIt		= 0;
 		Sonic *	sonicPtr	= &sonic;
 
-		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseWheelMoved, [&, sonicPtr](const sf::Event & event) mutable -> GGE::EventHandler::RegisteredCBReturn
+		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseWheelMoved, [&, sonicPtr](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
 		{
 			sf::Color color = sonicPtr->GetColor();
 
@@ -40,17 +39,17 @@ int	main(int ac, char *av[])
 			}
 			sonicPtr->SetColor(color);
 
-			return GGE::EventHandler::RegisteredCBReturn::OK;
+			return GGE::UserEventsHandler::RegisteredCBReturn::OK;
 		}));
-		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseLeft, [&](const sf::Event & event) mutable -> GGE::EventHandler::RegisteredCBReturn
+		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseLeft, [&](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
 		{
 			std::cout << "Putain, mais te barre pas" << std::endl;
-			return GGE::EventHandler::RegisteredCBReturn::OK;
+			return GGE::UserEventsHandler::RegisteredCBReturn::OK;
 		}));
-		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseButtonPressed, [&, sonicPtr](const sf::Event & event) mutable -> GGE::EventHandler::RegisteredCBReturn
+		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseButtonPressed, [&, sonicPtr](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
 		{
 			sonicPtr->SetMovement(std::make_pair(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)));
-			return GGE::EventHandler::RegisteredCBReturn::OK;
+			return GGE::UserEventsHandler::RegisteredCBReturn::OK;
 		}));
 
 // 2 : IA
@@ -59,7 +58,7 @@ int	main(int ac, char *av[])
 		game.GetRefEntityManager() += static_cast<IEntity*>(&sonicIA);
 
 		// [Cooldown Manager test]
-		game.GetCooldownManagerSystem() += GGE::Events::ReconductibleCooldownsManager::EventType({ std::chrono::seconds(1), [](){ std::cout << "CD done !" << std::endl; return true; } });
+		game.GetCooldownManagerSystem() += GGE::Events::CooldownManager::Reconductible::EventType({ std::chrono::seconds(1), [](){ std::cout << "CD done !" << std::endl; return true; } });
 
 // [/TEST]
 

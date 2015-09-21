@@ -30,7 +30,7 @@ namespace GGE
 	*/
 	class Game;
 
-	namespace EventHandler
+	namespace UserEventsHandler
 	{
 		using GameType = Game;
 		using GameEventCB = std::function<bool(const sf::Event & event, GameType & game)>;			// CB can be a callback, a closure, obj-binded function members with place-holders etc ...

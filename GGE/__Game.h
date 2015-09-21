@@ -107,15 +107,15 @@ namespace GGE
 			throw GCL::Exception("[Error] : Not implemented");
 		}
 		// Events handling
-		inline const EventHandler::MapType &				GetEventHandler_map(void)
+		inline const UserEventsHandler::MapType &				GetEventHandler_map(void)
 		{
 			return *(this->_EventTypeToCB);
 		}
-		inline EventHandler::RegistrableEventsMapType &		GetEventRegisteringSytem(void)
+		inline UserEventsHandler::RegistrableEventsMapType &		GetEventRegisteringSytem(void)
 		{
 			return _registeredEvents;
 		}
-		inline  Events::ReconductibleCooldownsManager &		GetCooldownManagerSystem(void)
+		inline  Events::CooldownManager::Reconductible &		GetCooldownManagerSystem(void)
 		{
 			return this->_cooldownManager;
 		}
@@ -127,29 +127,29 @@ namespace GGE
 		}
 		bool												HandleEvent(const sf::Event & event)
 		{
-			using GameEventRangeIt = std::pair < EventHandler::MapType::const_iterator, EventHandler::MapType::const_iterator >;
-			using RegisteredEventRangeIt = std::pair < EventHandler::RegistrableEventsMapType::iterator, EventHandler::RegistrableEventsMapType::iterator >;
-			using EventItQueue = std::queue < EventHandler::RegistrableEventsMapType::iterator >;
+			using GameEventRangeIt = std::pair < UserEventsHandler::MapType::const_iterator, UserEventsHandler::MapType::const_iterator >;
+			using RegisteredEventRangeIt = std::pair < UserEventsHandler::RegistrableEventsMapType::iterator, UserEventsHandler::RegistrableEventsMapType::iterator >;
+			using EventItQueue = std::queue < UserEventsHandler::RegistrableEventsMapType::iterator >;
 
 			// [Game events handling]
 			GameEventRangeIt gameEventRangeIt = this->_EventTypeToCB->equal_range(event.type);
-			for (EventHandler::MapType::const_iterator gameEventIt = gameEventRangeIt.first; gameEventIt != gameEventRangeIt.second; ++gameEventIt)
+			for (UserEventsHandler::MapType::const_iterator gameEventIt = gameEventRangeIt.first; gameEventIt != gameEventRangeIt.second; ++gameEventIt)
 				gameEventIt->second(event, *this);
 
 			// [Registered events handling]
 			EventItQueue			toUnregisterEventsQueue;
 			RegisteredEventRangeIt	registeredEventRangeIt = this->_registeredEvents.equal_range(event.type);
-			for (EventHandler::RegistrableEventsMapType::iterator registeredEventsIt = registeredEventRangeIt.first; registeredEventsIt != registeredEventRangeIt.second; ++registeredEventsIt)
+			for (UserEventsHandler::RegistrableEventsMapType::iterator registeredEventsIt = registeredEventRangeIt.first; registeredEventsIt != registeredEventRangeIt.second; ++registeredEventsIt)
 			{
 				switch (registeredEventsIt->second(event))
 				{
-				case EventHandler::RegisteredCBReturn::FAILURE:
+				case UserEventsHandler::RegisteredCBReturn::FAILURE:
 					throw std::runtime_error("Fatal error in registered event's callback execution");
 					break;
-				case EventHandler::RegisteredCBReturn::REQUIRE_UNREGISTERED:
+				case UserEventsHandler::RegisteredCBReturn::REQUIRE_UNREGISTERED:
 					toUnregisterEventsQueue.push(registeredEventsIt);
 					break;
-				case EventHandler::RegisteredCBReturn::OK :
+				case UserEventsHandler::RegisteredCBReturn::OK :
 				default:
 					break;
 				}
@@ -176,16 +176,18 @@ namespace GGE
 		// Entities 
 		inline EntityManager &								GetRefEntityManager(void)
 		{
-			return this->_entityManager;
+			static_assert(false, "[Error] : Code refactoring in progress");
+			return EntityManager();/*return this->_entityManager;*/
 		}
 		// [Todo] : protected
 		void												ManageEntities(void)	// [Todo] : protected
 		{
+			static_assert(false, "[Error] : Code refactoring in progress");
 			// todo : Reactoring ?
 
-			if (this->_entityManager.TicksUp() && !(this->_entityManager.Behave()))
-				throw GCL::Exception("[Error] : Game::ManageEntities -> IEntity::Behave call failed");
-			this->_entityManager.Draw(this->_window);
+			//if (this->_entityManager.TicksUp() && !(this->_entityManager.Behave()))
+			//	throw GCL::Exception("[Error] : Game::ManageEntities -> IEntity::Behave call failed");
+			//this->_entityManager.Draw(this->_window);
 			
 		}
 		// Loop
@@ -265,9 +267,10 @@ namespace GGE
 				T_EntityVector								_entities;
 
 		// EventsHandler :
-				EventHandler::MapType *						_EventTypeToCB = &(EventHandler::Debugger::GetTypeToCB_Map());
-				EventHandler::RegistrableEventsMapType		_registeredEvents;
-				GGE::Events::ReconductibleCooldownsManager	_cooldownManager;
+				UserEventsHandler::MapType *						_EventTypeToCB = &(UserEventsHandler::Debugger::GetTypeToCB_Map());
+				UserEventsHandler::RegistrableEventsMapType		_registeredEvents;
+				Events::CooldownManager::Reconductible		_cooldownManager;
+				Events::CooldownManager::ByTicks			_frameEventManager;
 	};
 }
 
