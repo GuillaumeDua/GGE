@@ -11,7 +11,7 @@
 # include "GCL/Exception.h"
 # include "GCL/Vector.h"
 # include "RENDERING/Types.h"
-# include "Screen.h"
+# include "Scene.h"
 
 # include "EventHandler.h"
 # include "CooldownManager.h"
@@ -49,11 +49,17 @@ namespace GGE
 			if (!(_window.isOpen()))
 				throw GCL::Exception("[Error] : Rendering window is not open");
 
+			this->_frameEventManager += {5, [this]() mutable -> bool
+			{
+				this->_collisionEngine->Calculate();
+				return true;
+			}};
 			// [Todo]::[Refactoring] : Split entities sprite refresh and behave logics
 			this->_frameEventManager += {5, [this]() mutable -> bool
 			{ 
 				for (auto & elem : this->_entities)
-					elem->Behave();
+					if (!elem->Behave())
+						throw std::runtime_error("[Error] : Entity failed to behave correctly");
 				return true;  
 			}};
 			this->_frameEventManager += {1, [this]() mutable -> bool
@@ -117,7 +123,7 @@ namespace GGE
 			this->_backgroundSprite.setTexture(texture);
 		}
 		// Screen
-		Game &												operator+=(Screen && screen)
+		Game &												operator+=(Scene<IEntity*> && screen)
 		{
 			throw GCL::Exception("[Error] : Not implemented");
 		}
@@ -281,6 +287,9 @@ namespace GGE
 				UserEventsHandler::RegistrableEventsMapType	_userEventsManager;
 				Events::CooldownManager::Reconductible		_cooldownManager;
 				Events::CooldownManager::ByTicks			_frameEventManager;
+
+		// Screens
+				std::vector<Scene<IEntity*> >				_screens;
 	};
 }
 
