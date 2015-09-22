@@ -9,6 +9,7 @@
 # include <map>
 
 # include "GCL/Exception.h"
+# include "GCL/Vector.h"
 # include "RENDERING/Types.h"
 # include "Screen.h"
 
@@ -47,6 +48,20 @@ namespace GGE
 			// _window.getView
 			if (!(_window.isOpen()))
 				throw GCL::Exception("[Error] : Rendering window is not open");
+
+			// [Todo]::[Refactoring] : Split entities sprite refresh and behave logics
+			this->_frameEventManager += {5, [this]() mutable -> bool
+			{ 
+				for (auto & elem : this->_entities)
+					elem->Behave();
+				return true;  
+			}};
+			this->_frameEventManager += {1, [this]() mutable -> bool
+			{
+				for (auto & elem : this->_entities)
+					elem->Draw(this->_window);
+				return true;
+			}};
 		}
 
 		// Run [-> I cld use my own Runnable class]
@@ -107,15 +122,15 @@ namespace GGE
 			throw GCL::Exception("[Error] : Not implemented");
 		}
 		// Events handling
-		inline const UserEventsHandler::MapType &				GetEventHandler_map(void)
+		inline const UserEventsHandler::MapType &			GetEventHandler_map(void)
 		{
 			return *(this->_EventTypeToCB);
 		}
-		inline UserEventsHandler::RegistrableEventsMapType &		GetEventRegisteringSytem(void)
+		inline UserEventsHandler::RegistrableEventsMapType& GetEventRegisteringSytem(void)
 		{
-			return _registeredEvents;
+			return _userEventsManager;
 		}
-		inline  Events::CooldownManager::Reconductible &		GetCooldownManagerSystem(void)
+		inline  Events::CooldownManager::Reconductible &	GetCooldownManagerSystem(void)
 		{
 			return this->_cooldownManager;
 		}
@@ -138,7 +153,7 @@ namespace GGE
 
 			// [Registered events handling]
 			EventItQueue			toUnregisterEventsQueue;
-			RegisteredEventRangeIt	registeredEventRangeIt = this->_registeredEvents.equal_range(event.type);
+			RegisteredEventRangeIt	registeredEventRangeIt = this->_userEventsManager.equal_range(event.type);
 			for (UserEventsHandler::RegistrableEventsMapType::iterator registeredEventsIt = registeredEventRangeIt.first; registeredEventsIt != registeredEventRangeIt.second; ++registeredEventsIt)
 			{
 				switch (registeredEventsIt->second(event))
@@ -157,7 +172,7 @@ namespace GGE
 			// Unregistering
 			while (toUnregisterEventsQueue.size() != 0)
 			{
-				this->_registeredEvents.erase(toUnregisterEventsQueue.back());
+				this->_userEventsManager.erase(toUnregisterEventsQueue.back());
 				toUnregisterEventsQueue.pop();
 			}
 			return true;
@@ -172,24 +187,19 @@ namespace GGE
 			while (this->_window.pollEvent(event))
 				if (this->HandleEvent(event) == false)
 					throw std::runtime_error("[UnexpectedException]::[ManageEvents] : Failure while handling an event");
+
+			// [Frame events]
+			_frameEventManager.Check();
 		}
 		// Entities 
-		inline EntityManager &								GetRefEntityManager(void)
+		using T_EntityVector = GCL::Vector<IEntity*>;
+		inline T_EntityVector &								Entities(void)
 		{
-			static_assert(false, "[Error] : Code refactoring in progress");
-			return EntityManager();/*return this->_entityManager;*/
+			return _entities;
 		}
-		// [Todo] : protected
-		void												ManageEntities(void)	// [Todo] : protected
-		{
-			static_assert(false, "[Error] : Code refactoring in progress");
-			// todo : Reactoring ?
 
-			//if (this->_entityManager.TicksUp() && !(this->_entityManager.Behave()))
-			//	throw GCL::Exception("[Error] : Game::ManageEntities -> IEntity::Behave call failed");
-			//this->_entityManager.Draw(this->_window);
-			
-		}
+		// [Todo] : protected
+		
 		// Loop
 		bool												Update(void)
 		{
@@ -198,7 +208,6 @@ namespace GGE
 				this->_window.clear();
 				this->_window.draw(this->_backgroundSprite);
 				this->ManageEvents();
-				this->ManageEntities();
 				this->_window.display();
 			}
 			catch (...)
@@ -221,13 +230,15 @@ namespace GGE
 				while (this->_IsRunning && diffTimeCt > _ticksSystem.TimePerFrame)
 				{
 					diffTimeCt -= _ticksSystem.TimePerFrame;
-					if (this->Update() == false) return false;
+					if (this->Update() == false)
+						return false;
 				}
 			}
 			return true;
 		}
 
 		// Ticks :
+		// [Todo] : Refactoring
 		struct TicksSystem
 		{
 			TicksSystem(const size_t TicksPerSec)
@@ -263,12 +274,11 @@ namespace GGE
 
 		// Entities :
 				// EntityManager								_entityManager;
-				using T_EntityVector = std::vector<IEntity*>;
 				T_EntityVector								_entities;
 
 		// EventsHandler :
-				UserEventsHandler::MapType *						_EventTypeToCB = &(UserEventsHandler::Debugger::GetTypeToCB_Map());
-				UserEventsHandler::RegistrableEventsMapType		_registeredEvents;
+				UserEventsHandler::MapType *				_EventTypeToCB = &(UserEventsHandler::Debugger::GetTypeToCB_Map());
+				UserEventsHandler::RegistrableEventsMapType	_userEventsManager;
 				Events::CooldownManager::Reconductible		_cooldownManager;
 				Events::CooldownManager::ByTicks			_frameEventManager;
 	};

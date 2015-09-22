@@ -9,10 +9,6 @@
 # include <future>
 # include <type_traits>
 
-// [Todo] : Refactoring : CooldownManager<typename T_TickingPolicy, bool IsRecurrent>
-//	Ticking policy			-> Manual, Auto
-//	Reconductible policy	-> yes, no
-
 namespace GGE
 {
 	namespace Events
@@ -68,12 +64,12 @@ namespace GGE
 				}
 				void			Check(void)
 				{
+					_ticks = (_ticks == std::numeric_limits<size_t>::max() ? 1 : _ticks + 1);
 					for (auto & elem : _callbacks)
 					{
-						if (elem.first % _ticks == 0)
+						if (_ticks % elem.first == 0)
 							elem.second();
 					}
-					_ticks = (_ticks == std::numeric_limits<size_t>::max() ? 0 : _ticks + 1);
 				}
 
 			protected:
@@ -126,7 +122,6 @@ namespace GGE
 ///
 /// [TEST]
 ///
-
 
 //int main()
 //{

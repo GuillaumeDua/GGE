@@ -15,7 +15,7 @@ int	main(int ac, char *av[])
 // 1 : Controlable
 		Sonic sonic = std::move(std::make_pair( 200.f, 200.f ));
 		sonic.ForceCurrentStatus(Sonic::Status::Walking);
-		game.GetRefEntityManager() += static_cast<IEntity*>(&sonic);
+		game.Entities() += static_cast<IEntity*>(&sonic);
 
 		// [Fun] : Funny event registering system test
 		int		callIt		= 0;
@@ -43,7 +43,7 @@ int	main(int ac, char *av[])
 		}));
 		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseLeft, [&](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
 		{
-			std::cout << "Putain, mais te barre pas" << std::endl;
+			// std::cout << "Putain, mais te barre pas" << std::endl;
 			return GGE::UserEventsHandler::RegisteredCBReturn::OK;
 		}));
 		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseButtonPressed, [&, sonicPtr](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
@@ -55,7 +55,7 @@ int	main(int ac, char *av[])
 // 2 : IA
 		Sonic sonicIA({ 400.f, 400.f });
 		sonicIA.ForceCurrentStatus(Sonic::Status::Walking);
-		game.GetRefEntityManager() += static_cast<IEntity*>(&sonicIA);
+		game.Entities() += static_cast<IEntity*>(&sonicIA);
 
 		// [Cooldown Manager test]
 		game.GetCooldownManagerSystem() += GGE::Events::CooldownManager::Reconductible::EventType({ std::chrono::seconds(1), [](){ std::cout << "CD done !" << std::endl; return true; } });
