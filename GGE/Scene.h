@@ -13,23 +13,21 @@ namespace GGE
 	{
 		using DrawableVectorType = typename std::vector < T_Drawable > ;
 
-		// Background
-		// std::vector<Drawable>
-
 		Scene() = default;
 		Scene(const std::string & backgroundTexturePath, DrawableVectorType && DrawableVectorType = DrawableVectorType())
 			: _drawables(DrawableVectorType)
 		{
 			this->LoadBackground(backgroundTexturePath);
 		}
+		~Scene() = default;
 
 		void	Draw(void)
 		{
 			assert(_window != 0x0);
 
-			_window.clear();
-			_window.draw(this->_backgroundSprite);
-			_window.display();
+			_window->clear();
+			_window->draw(this->_backgroundSprite);
+			_window->display();
 		}
 
 		static void	BindWindow(RenderWindow	* renderWindows)

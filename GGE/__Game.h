@@ -7,18 +7,17 @@
 # include <atomic>
 # include <functional>
 # include <map>
+# include <memory>
 
 # include "GCL/Exception.h"
 # include "GCL/Vector.h"
 # include "RENDERING/Types.h"
+# include "IEntity.h"
+# include "Entity.h"
 # include "Scene.h"
-
 # include "EventHandler.h"
 # include "CooldownManager.h"
-# include "EntityManager.h"
-
 # include "ICollisionEngine.h"
-
 
 // Window::SetFramerateLimit => vertical sync ?
 // screenshots => sf::Image Scren = App.Capture()
@@ -48,6 +47,7 @@ namespace GGE
 			// _window.getView
 			if (!(_window.isOpen()))
 				throw GCL::Exception("[Error] : Rendering window is not open");
+			SceneType::BindWindow(&_window);
 
 			this->_frameEventManager += {5, [this]() mutable -> bool
 			{
@@ -74,7 +74,16 @@ namespace GGE
 		bool												Start(void)
 		{
 			if (this->_IsRunning)
+			{
+				std::cerr << "[Error]::[GGE::Game::Start] : attempting to start a game that is already running" << std::endl;
 				return false;
+			}
+			if (_currentSceneIt == _scenes.end())
+			{
+				std::cerr << "[Error]::[GGE::Game::Start] : attempting to start a game that has no active scene set" << std::endl;
+				return false;
+			}
+
 			this->_IsRunning = true;
 
 			std::cout << "[+] Start ... framerate set at : " << _ticksSystem.FPS << std::endl;
@@ -108,7 +117,7 @@ namespace GGE
 		}
 
 		// Rendering
-		inline void											SetBackground(const Sprite & sprite)
+		/*inline void											SetBackground(const Sprite & sprite)
 		{
 			this->_backgroundSprite = sprite;
 		}
@@ -121,11 +130,22 @@ namespace GGE
 		inline void											SetBackground(const Texture & texture)
 		{
 			this->_backgroundSprite.setTexture(texture);
-		}
-		// Screen
-		Game &												operator+=(Scene<IEntity*> && screen)
+		}*/
+		// Scenes
+		using SceneType = GGE::Scene<IEntity*>;
+		Game &												operator+=(SceneType && scene)
 		{
-			throw GCL::Exception("[Error] : Not implemented");
+			this->_scenes.push_back(scene);
+			return *this;
+		}
+		inline SceneType &									operator[](const size_t it)
+		{
+			return this->_scenes.at(it);
+		}
+		void												setActiveScene(const size_t i)
+		{
+			this->_currentSceneIt = _scenes.begin();
+			std::advance(_currentSceneIt, i);
 		}
 		// Events handling
 		inline const UserEventsHandler::MapType &			GetEventHandler_map(void)
@@ -204,24 +224,26 @@ namespace GGE
 			return _entities;
 		}
 
-		// [Todo] : protected
-		
+		// Runnable :
+		std::atomic<bool>									_IsRunning = false; // volatile
+
+	protected:
 		// Loop
-		bool												Update(void)
+		void												Update(void)
 		{
 			try
 			{
-				this->_window.clear();
-				this->_window.draw(this->_backgroundSprite);
 				this->ManageEvents();
-				this->_window.display();
+				_currentSceneIt->Draw();
+			}
+			catch (const std::exception & ex)
+			{
+				std::cerr << "[Error]::[GGE::Game::Update] : std::exception catch : [" << ex.what() << ']' << std::endl;
 			}
 			catch (...)
 			{
-				return false;
+				std::cerr << "[Error]::[GGE::Game::Update] : Unknown exception catch" << std::endl;
 			}
-
-			return true;
 		}
 		bool												Loop(void)
 		{
@@ -236,8 +258,7 @@ namespace GGE
 				while (this->_IsRunning && diffTimeCt > _ticksSystem.TimePerFrame)
 				{
 					diffTimeCt -= _ticksSystem.TimePerFrame;
-					if (this->Update() == false)
-						return false;
+					this->Update();
 				}
 			}
 			return true;
@@ -265,9 +286,6 @@ namespace GGE
 					
 		}							_ticksSystem;
 
-		// Runnable :
-				std::atomic<bool>							_IsRunning = false; // volatile
-
 		// Rendering :
 				// [Todo] : Use GGE::Screenhere
 				RenderWindow								_window;
@@ -289,7 +307,8 @@ namespace GGE
 				Events::CooldownManager::ByTicks			_frameEventManager;
 
 		// Screens
-				std::vector<Scene<IEntity*> >				_screens;
+				std::vector<SceneType>						_scenes;
+				std::vector<SceneType>::iterator			_currentSceneIt = _scenes.end();
 	};
 }
 

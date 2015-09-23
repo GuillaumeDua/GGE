@@ -9,14 +9,27 @@ int	main(int ac, char *av[])
 
 	try
 	{
-		game.SetBackground("SPRITES/bg_blue.png");	// SPRITES/Sonic_spritesSheet.png
-
 // [TEST]
-// 1 : Controlable
-		Sonic sonic = std::move(std::make_pair( 200.f, 200.f ));
+
+		Sonic sonic = std::move(std::make_pair(200.f, 200.f));
 		sonic.ForceCurrentStatus(Sonic::Status::Walking);
 		game.Entities() += static_cast<IEntity*>(&sonic);
 
+		Sonic sonicIA({ 400.f, 400.f });
+		sonicIA.ForceCurrentStatus(Sonic::Status::Walking);
+		game.Entities() += static_cast<IEntity*>(&sonicIA);
+
+		game += std::move(GGE::Game::SceneType(
+			"SPRITES/bg_blue.png"
+			, {
+				static_cast<IEntity*>(&sonic)
+				, static_cast<IEntity*>(&sonicIA)
+			}
+			));
+
+		game.setActiveScene(0);
+
+// 1 : Controlable
 		// [Fun] : Funny event registering system test
 		int		callIt		= 0;
 		Sonic *	sonicPtr	= &sonic;
@@ -51,15 +64,7 @@ int	main(int ac, char *av[])
 			sonicPtr->SetMovement(std::make_pair(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)));
 			return GGE::UserEventsHandler::RegisteredCBReturn::OK;
 		}));
-
-// 2 : IA
-		Sonic sonicIA({ 400.f, 400.f });
-		sonicIA.ForceCurrentStatus(Sonic::Status::Walking);
-		game.Entities() += static_cast<IEntity*>(&sonicIA);
-
-		// [Cooldown Manager test]
 		game.GetCooldownManagerSystem() += GGE::Events::CooldownManager::Reconductible::EventType({ std::chrono::seconds(1), [](){ std::cout << "CD done !" << std::endl; return true; } });
-
 // [/TEST]
 
 		game.Start();
