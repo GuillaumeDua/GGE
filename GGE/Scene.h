@@ -11,7 +11,8 @@ namespace GGE
 	template <typename T_Drawable>
 	struct Scene // or Screne [?]
 	{
-		using DrawableVectorType = typename std::vector < T_Drawable > ;
+		using T_DrawableType = T_Drawable*;
+		using DrawableVectorType = typename std::vector < T_DrawableType >;
 
 		Scene() = default;
 		Scene(const std::string & backgroundTexturePath, DrawableVectorType && DrawableVectorType = DrawableVectorType())
@@ -21,26 +22,36 @@ namespace GGE
 		}
 		~Scene() = default;
 
-		void	Draw(void)
+		inline Scene &				operator+=(T_DrawableType & drawable)
+		{
+			this->_drawables.emplace_back(drawable);
+			return *this;
+		}
+		inline DrawableVectorType &	GetContent(void)
+		{
+			return this->_drawables;
+		}
+
+		void						Draw(void)
 		{
 			assert(_window != 0x0);
 
 			_window->clear();
 			_window->draw(this->_backgroundSprite);
+			std::for_each(_drawables.begin(), _drawables.end(), [&](T_DrawableType drawable){ drawable->Draw(*_window); });
 			_window->display();
 		}
-
-		static void	BindWindow(RenderWindow	* renderWindows)
+		static void					BindWindow(RenderWindow	* renderWindows)
 		{
 			_window = renderWindows;
 		}
 
 	protected:
-		static RenderWindow	*	_window;
+		static RenderWindow	*		_window;
 
-		DrawableVectorType		_drawables;
-		Sprite					_backgroundSprite;
-		Texture					_bufBatckgroundTexture; // To use as buffer. [Todo]=[To_test] -> SetSmooth
+		DrawableVectorType			_drawables;
+		Sprite						_backgroundSprite;
+		Texture						_bufBatckgroundTexture; // To use as buffer. [Todo]=[To_test] -> SetSmooth
 
 		inline void	LoadBackground(const std::string & texture_path)
 		{

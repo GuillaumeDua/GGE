@@ -19,13 +19,12 @@ int	main(int ac, char *av[])
 		sonicIA.ForceCurrentStatus(Sonic::Status::Walking);
 		game.Entities() += static_cast<IEntity*>(&sonicIA);
 
-		game += std::move(GGE::Game::SceneType(
+		game += new GGE::Game::SceneType(
 			"SPRITES/bg_blue.png"
 			, {
 				static_cast<IEntity*>(&sonic)
 				, static_cast<IEntity*>(&sonicIA)
-			}
-			));
+			});
 
 		game.setActiveScene(0);
 

@@ -39,7 +39,10 @@ namespace GGE
 		}
 		Game(const Game &)	= delete;
 		Game(const Game &&) = delete;
-		~Game(){}
+		~Game()
+		{
+			std::for_each(_scenes.begin(), _scenes.end(), [&](SceneType * elem){ delete elem; });
+		}
 
 		void												Initialize(void)
 		{
@@ -62,12 +65,12 @@ namespace GGE
 						throw std::runtime_error("[Error] : Entity failed to behave correctly");
 				return true;  
 			}};
-			this->_frameEventManager += {1, [this]() mutable -> bool
+			/*this->_frameEventManager += {1, [this]() mutable -> bool
 			{
 				for (auto & elem : this->_entities)
 					elem->Draw(this->_window);
 				return true;
-			}};
+			}};*/
 		}
 
 		// Run [-> I cld use my own Runnable class]
@@ -132,13 +135,13 @@ namespace GGE
 			this->_backgroundSprite.setTexture(texture);
 		}*/
 		// Scenes
-		using SceneType = GGE::Scene<IEntity*>;
-		Game &												operator+=(SceneType && scene)
+		using SceneType = GGE::Scene<IEntity>;
+		Game &												operator+=(SceneType * scene)
 		{
 			this->_scenes.push_back(scene);
 			return *this;
 		}
-		inline SceneType &									operator[](const size_t it)
+		inline SceneType *									operator[](const size_t it)
 		{
 			return this->_scenes.at(it);
 		}
@@ -234,7 +237,7 @@ namespace GGE
 			try
 			{
 				this->ManageEvents();
-				_currentSceneIt->Draw();
+				(*_currentSceneIt)->Draw();
 			}
 			catch (const std::exception & ex)
 			{
@@ -279,7 +282,7 @@ namespace GGE
 			const sf::Time 									TimePerFrame = sf::seconds(1.f / FPS);
 
 			static	const size_t							DEFAULT_TICKS_PER_SEC	= 50;
-			static	const size_t							DEFAULT_FRAME_SKIP		= 10;
+			static	const size_t							DEFAULT_FRAME_SKIP		= 5;
 					const size_t							_TicksPerSec			= DEFAULT_TICKS_PER_SEC;
 					const size_t							_TicksToSkip			= 1000 / _TicksPerSec;
 					const size_t							_MaxFameSkip			= DEFAULT_FRAME_SKIP;
@@ -307,8 +310,8 @@ namespace GGE
 				Events::CooldownManager::ByTicks			_frameEventManager;
 
 		// Screens
-				std::vector<SceneType>						_scenes;
-				std::vector<SceneType>::iterator			_currentSceneIt = _scenes.end();
+				std::vector<SceneType*>						_scenes;
+				std::vector<SceneType*>::iterator			_currentSceneIt = _scenes.end();
 	};
 }
 
