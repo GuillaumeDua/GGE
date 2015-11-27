@@ -8,8 +8,11 @@
 
 namespace GGE
 {
+	//
+	// Can be a screen (combine with camera/view), a gif-like video, a zelda-like level / map-tile, etc...
+	//
 	template <typename T_Drawable>
-	struct Scene // or Screne [?]
+	struct Scene
 	{
 		using T_DrawableType = T_Drawable*;
 		using DrawableVectorType = typename std::vector < T_DrawableType >;

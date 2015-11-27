@@ -6,6 +6,7 @@
 # include <queue>
 # include <chrono>
 # include <math.h>
+# include <set>
 
 # include "Sprite.h"
 # include "GCL/Exception.h"
@@ -27,17 +28,17 @@ public:
 	using Behavior = typename EntityDescriptor::Behavior;
 	using Animation = typename EntityDescriptor::Animation;
 
-	enum class DirectionType : char
-	{
-		NORTH = 0x01
-		, EAST = 0x02
-		, WEST = 0x04
-		, SOUTH = 0x08
-		, NORTH_EAST = NORTH + EAST	// 0x03
-		, NORTH_WEST = NORTH + WEST	// 0x05
-		, SOUTH_EAST = SOUTH + EAST // 0x10
-		, SOUTH_WEST = SOUTH + WEST // 0x12
-	};
+	//enum class DirectionType : char
+	//{
+	//	NORTH = 0x01
+	//	, EAST = 0x02
+	//	, WEST = 0x04
+	//	, SOUTH = 0x08
+	//	, NORTH_EAST = NORTH + EAST	// 0x03
+	//	, NORTH_WEST = NORTH + WEST	// 0x05
+	//	, SOUTH_EAST = SOUTH + EAST // 0x10
+	//	, SOUTH_WEST = SOUTH + WEST // 0x12
+	//};
 	struct MovementType
 	{
 		static inline const float Cos(const float angle) { return static_cast<float>(std::cos(angle * PI / 180.0)); }
@@ -138,6 +139,20 @@ public:
 		++(this->_animations.at(this->_currentStatus));
 		return this->_behavior.at(this->_currentStatus)(*this);
 	}
+	// [HitBox]
+	void									OnCollision(void)
+	{
+		for (auto & collided_hitbox : _collisions)
+			for (auto & onCollisonEventCB : _onCollsionEventsCB)
+				onCollisonEventCB(collided_hitbox);
+
+		this->_collisions.clear();
+	}
+	using T_OnCollsionEvent_CB = std::vector < std::function<void(const HitBox*)> > ;
+	T_OnCollsionEvent_CB &					CollisionsEvents()
+	{
+		return this->_onCollsionEventsCB;
+	}
 	// [Status]
 	inline const Status						GetCurrentStatus(void) const
 	{
@@ -186,6 +201,16 @@ protected:
 	Entity() = delete;
 
 	//std::queue<Status>					_pendingStatus;	// [Todo]::[?]
+	T_OnCollsionEvent_CB					_onCollsionEventsCB =
+	{ 
+		{
+			[/*this*/](const HitBox * hb)
+			{
+				std::cout << "[+] Collision detected" << std::endl;
+				// _this->_color.r += 10;
+			}
+		}
+	};
 
 	Status									_currentStatus;
 	Behavior								_behavior;

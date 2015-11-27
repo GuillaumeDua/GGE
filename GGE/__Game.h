@@ -55,6 +55,7 @@ namespace GGE
 			this->_frameEventManager += {5, [this]() mutable -> bool
 			{
 				this->_collisionEngine->Calculate();
+				this->_collisionEngine->ApplyOnCollisionEvents();
 				return true;
 			}};
 			// [Todo]::[Refactoring] : Split entities sprite refresh and behave logics
@@ -149,6 +150,10 @@ namespace GGE
 		{
 			this->_currentSceneIt = _scenes.begin();
 			std::advance(_currentSceneIt, i);
+
+			this->_collisionEngine->Unload();
+			for (auto & entity : _entities)
+				*(this->_collisionEngine) += *dynamic_cast<HitBox*>(entity);
 		}
 		// Events handling
 		inline const UserEventsHandler::MapType &			GetEventHandler_map(void)

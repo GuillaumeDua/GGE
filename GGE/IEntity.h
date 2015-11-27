@@ -72,6 +72,8 @@ struct HitBox
 		return _unregisterFromCollisionEngineRequiered;
 	}
 
+	virtual	void								OnCollision(){}
+
 protected:
 	PositionType								_position;
 	SizeType									_size;
@@ -80,7 +82,7 @@ protected:
 	bool										_unregisterFromCollisionEngineRequiered = false;
 };
 
-struct IEntity //: public HitBox
+struct IEntity
 {
 	virtual void							Draw(sf::RenderWindow & renderWindow) = 0;
 	virtual bool							Behave(void) = 0;

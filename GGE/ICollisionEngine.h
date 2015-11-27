@@ -7,6 +7,7 @@
 # include "IEntity.h"
 # include <queue>
 # include <vector>
+# include "GCL/Vector.h"
 
 namespace CollisionEngine
 {
@@ -16,10 +17,10 @@ namespace CollisionEngine
 		{
 			static bool	IsCollision(const HitBox & a, const HitBox & b)
 			{
-				return (a.GetPosition().first < b.GetPosition().first + b.GetSize().first &&
-					a.GetPosition().first + a.GetSize().first > b.GetPosition().first &&
-					a.GetPosition().second < b.GetPosition().second + b.GetSize().second &&
-					a.GetSize().second + a.GetPosition().second > b.GetPosition().second);
+				return (a.GetPosition().first < b.GetPosition().first + b.GetSize().first
+					&& a.GetPosition().first + a.GetSize().first > b.GetPosition().first
+					&& a.GetPosition().second < b.GetPosition().second + b.GetSize().second
+					&& a.GetSize().second + a.GetPosition().second > b.GetPosition().second);
 			}
 		};
 	}
@@ -30,9 +31,12 @@ namespace CollisionEngine
 		virtual Interface &			operator+=(std::vector<HitBox*> &) = 0;
 		virtual Interface &			operator+=(HitBox &) = 0;
 		virtual void				RemoveUnregistered(void) = 0;
+		virtual void				Unload(void) = 0;
 		// [Basis]
 		virtual void				Calculate(void) = 0;
 		virtual void				Calculate(HitBox &) = 0;
+		// [Events]
+		virtual void				ApplyOnCollisionEvents(void) = 0;
 	};
 
 	namespace Implem
@@ -54,6 +58,10 @@ namespace CollisionEngine
 			{
 				std::remove_if(_entities.begin(), _entities.end(), [=](HitBox * hb) -> bool { return hb->DoesRequierUnregisterFromCollisionEngine(); });
 			}
+			void					Unload(void)
+			{
+				_entities.clear();
+			}
 
 			virtual void			Calculate(void)
 			{
@@ -70,6 +78,13 @@ namespace CollisionEngine
 						hb.NotifyCollision(elem);
 					}
 				}
+			}
+			void					ApplyOnCollisionEvents(void)
+			{
+				for (auto & elem : _entities)
+					if (elem->HasCollisions())
+						elem->OnCollision();
+						
 			}
 
 		protected:
