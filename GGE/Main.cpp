@@ -11,13 +11,24 @@ int	main(int ac, char *av[])
 	{
 // [TEST]
 
-		Sonic sonic = std::move(std::make_pair(200.f, 200.f));
+		Sonic sonic = std::move(std::make_pair(0.f, 0.f));
+		// Sonic sonic = std::move(std::make_pair(200.f, 200.f));
 		sonic.ForceCurrentStatus(Sonic::Status::Walking);
 		game.Entities() += static_cast<IEntity*>(&sonic);
 
 		Sonic sonicIA({ 400.f, 400.f });
 		sonicIA.ForceCurrentStatus(Sonic::Status::Walking);
 		game.Entities() += static_cast<IEntity*>(&sonicIA);
+
+		sonicIA.CollisionsEvents() +=
+		{
+			[&sonicIA](const HitBox * hb)
+			{
+				std::cout << "[+] Collision detected" << std::endl;
+				sonicIA.ForceCurrentStatus(Sonic::Status::Destroying);
+				// sonicIA.DoesRequierUnregisterFromCollisionEngine();
+			}
+		};
 
 		game += new GGE::Game::SceneType(
 			"SPRITES/bg_blue.png"

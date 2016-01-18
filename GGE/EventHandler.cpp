@@ -52,7 +52,7 @@ UserEventsHandler::MapType	UserEventsHandler::Debugger::_eventTypeToCB_map =
 	},
 	{
 		sf::Event::MouseMoved,
-		[&](const sf::Event & event, UserEventsHandler::GameType & game) -> bool { std::cout << "MouveMoved : " << event.mouseMove.x << 'x' << event.mouseMove.y << std::endl; return true; }
+		[&](const sf::Event & event, UserEventsHandler::GameType & game) -> bool { /*std::cout << "MouveMoved : " << event.mouseMove.x << 'x' << event.mouseMove.y << std::endl;*/ return true; }
 	},
 	{
 		sf::Event::MouseEntered,

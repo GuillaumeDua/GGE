@@ -17,10 +17,13 @@ namespace CollisionEngine
 		{
 			static bool	IsCollision(const HitBox & a, const HitBox & b)
 			{
-				return (a.GetPosition().first < b.GetPosition().first + b.GetSize().first
+				bool isCollision = (a.GetPosition().first < b.GetPosition().first + b.GetSize().first
 					&& a.GetPosition().first + a.GetSize().first > b.GetPosition().first
 					&& a.GetPosition().second < b.GetPosition().second + b.GetSize().second
 					&& a.GetSize().second + a.GetPosition().second > b.GetPosition().second);
+				if (isCollision == true)
+					int i = 42;
+				return isCollision;
 			}
 		};
 	}

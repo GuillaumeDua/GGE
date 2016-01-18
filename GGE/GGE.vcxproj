@@ -129,7 +129,10 @@
     <ClInclude Include="CooldownManager.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="GCL\Exception.h" />
+    <ClInclude Include="GCL\Maths.h" />
+    <ClInclude Include="GCL\ObjBinding.h" />
     <ClInclude Include="GCL\Preprocessor.h" />
+    <ClInclude Include="GCL\Vector.h" />
     <ClInclude Include="ICollisionEngine.h" />
     <ClInclude Include="IEntity.h" />
     <ClInclude Include="Sprite.h" />

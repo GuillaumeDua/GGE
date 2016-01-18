@@ -8,12 +8,14 @@
 # include <math.h>
 # include <set>
 
-# include "Sprite.h"
-# include "GCL/Exception.h"
 # include <SFML/Graphics.hpp>
-# include "IEntity.h"
 
-static const double PI = 3.14159265;
+# include "GCL/Exception.h"
+# include "GCL/Maths.h"
+# include "GCL/Vector.h"
+
+# include "IEntity.h"
+# include "Sprite.h"
 
 template <typename EntityDescriptor>
 class Entity
@@ -41,9 +43,6 @@ public:
 	//};
 	struct MovementType
 	{
-		static inline const float Cos(const float angle) { return static_cast<float>(std::cos(angle * PI / 180.0)); }
-		static inline const float Sin(const float angle) { return static_cast<float>(std::sin(angle * PI / 180.0)); }
-
 		MovementType()
 			: _isActive(false)
 		{}
@@ -66,8 +65,8 @@ public:
 			assert(destination.first > 0 && destination.second > 0);
 
 			_destination = destination;
-			_modifiers.first = Cos(_destination.first);
-			_modifiers.second = Sin(_destination.second);
+			_modifiers.first = GCL::Maths::Cos(_destination.first);
+			_modifiers.second = GCL::Maths::Sin(_destination.second);
 
 			_isActive = true;
 		}
@@ -107,6 +106,22 @@ public:
 		PositionType					_destination;
 		bool							_isActive;
 	};
+	struct SpriteModifiers
+	{
+		explicit SpriteModifiers()
+		{}
+
+		void	Apply(sf::Sprite & sprite)
+		{
+			sprite.setRotation(_rotation);
+			sprite.setColor(_color);
+			sprite.setScale(_scale.first, _scale.second);
+		}
+
+		sf::Color								_color = sf::Color(100, 100, 100, 255);
+		std::pair<float, float>					_scale = { 1.0f, 1.0f };
+		float									_rotation = .0f;
+	};
 
 
 	Entity(const std::pair<float, float> & pos)
@@ -114,7 +129,6 @@ public:
 		, HitBox(pos, EntityDescriptor::_size)
 		, _behavior(EntityDescriptor::_behavior)
 		, _animations(EntityDescriptor::_animation)
-		, _rotation(.0f)
 		, _speed(15.0f)
 	{}
 	virtual ~Entity(){}
@@ -122,12 +136,9 @@ public:
 	// [IEntity]
 	void									Draw(sf::RenderWindow & renderWindow)
 	{
-		//sf::Sprite & sprite = *(this->_animations.at(this->_currentStatus).Get());
 		sf::Sprite & sprite = *(this->_animations.at(this->_currentStatus).GetCurrent());
 		sprite.setPosition(_position.first, _position.second);
-		sprite.setRotation(_rotation);
-		sprite.setColor(_color);
-		sprite.setScale(_scale.first, _scale.second);
+		_spriteModifier.Apply(sprite);
 		renderWindow.draw(sprite);
 	}
 	bool									Behave(void)
@@ -142,13 +153,13 @@ public:
 	// [HitBox]
 	void									OnCollision(void)
 	{
-		for (auto & collided_hitbox : _collisions)
+		for (auto collided_hitbox : _collisions)
 			for (auto & onCollisonEventCB : _onCollsionEventsCB)
 				onCollisonEventCB(collided_hitbox);
-
+		
 		this->_collisions.clear();
 	}
-	using T_OnCollsionEvent_CB = std::vector < std::function<void(const HitBox*)> > ;
+	using T_OnCollsionEvent_CB = GCL::Vector < std::function<void(const HitBox*)> > ;
 	T_OnCollsionEvent_CB &					CollisionsEvents()
 	{
 		return this->_onCollsionEventsCB;
@@ -169,19 +180,19 @@ public:
 	}
 	inline void								SetColor(const sf::Color & value)
 	{
-		this->_color = value;
+		this->_spriteModifier._color = value;
 	}
 	inline const sf::Color &				GetColor(void) const
 	{
-		return this->_color;
+		return this->_spriteModifier._color;
 	}
 	inline void								SetMovement(const PositionType & target)
 	{
 		// flip
-		const float originalXScale = _scale.first;
-		_scale = { static_cast<float>(target.first) < _position.first ? -1.0f : 1.0f, 1.0f };
-		if (_scale.first != originalXScale)
-			this->SetPosition({ (_scale.first == -1.0f
+		const float originalXScale = _spriteModifier._scale.first;
+		_spriteModifier._scale = { static_cast<float>(target.first) < _position.first ? -1.0f : 1.0f, 1.0f };
+		if (_spriteModifier._scale.first != originalXScale)
+			this->SetPosition({ (_spriteModifier._scale.first == -1.0f
 			? _position.first + _size.first
 			: _position.first - _size.first
 			)
@@ -195,31 +206,26 @@ public:
 		return this->_rotation;
 	}
 
+	inline SpriteModifiers &				GetSpriteModifier(void)
+	{
+		return _spriteModifier;
+	}
+
 protected:
 	Entity(const ThisType &)		= delete;
 	Entity(const ThisType &&)		= delete;
 	Entity() = delete;
 
 	//std::queue<Status>					_pendingStatus;	// [Todo]::[?]
-	T_OnCollsionEvent_CB					_onCollsionEventsCB =
-	{ 
-		{
-			[/*this*/](const HitBox * hb)
-			{
-				std::cout << "[+] Collision detected" << std::endl;
-				// _this->_color.r += 10;
-			}
-		}
-	};
-
+	T_OnCollsionEvent_CB					_onCollsionEventsCB;
 	Status									_currentStatus;
 	Behavior								_behavior;
 	Animation								_animations;
-	std::pair<float, float>					_scale = { 1.0f, 1.0f };
+
 	float									_speed;
 	MovementType							_movement;
-	float									_rotation;
-	sf::Color								_color = sf::Color(100,100,100,255);
+
+	SpriteModifiers							_spriteModifier;
 };
 
 //
@@ -237,16 +243,22 @@ struct Sonic_EntityDescriptor
 		, Walking
 		, Running
 		, Jumping
+		, Destroying
 	};
 
 	using Behavior	= std::map < Status, std::function<bool(Entity<Sonic_EntityDescriptor>&)> >;	// [Todo] : Multimap + not const [?]
 	using Animation	= std::map < Status, GGE::SPRITE::Serie >;
 
-	static const GGE::SPRITE::Sheet		gSpriteSheet;
-	static const Behavior				_behavior;
-	static const Animation				_animation;
+	// [Todo] : Fix GGE::SPRITE::Sheet's move constructor
+	/*static const std::vector<const GGE::SPRITE::Sheet>	SheetsPack;*/
 
-	static const std::pair<int, int>	_size;
+	static const GGE::SPRITE::Sheet			gSpriteSheet_walking;
+	static const GGE::SPRITE::Sheet			gSpriteSheet_Destroying;
+
+	static const Behavior					_behavior;
+	static const Animation					_animation;
+
+	static const std::pair<int, int>		_size;
 };
 
 using Sonic = Entity < Sonic_EntityDescriptor > ;
