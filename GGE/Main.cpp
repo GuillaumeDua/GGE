@@ -3,16 +3,24 @@
 #include "GCL/Preprocessor.h"
 #include "__Game.h"
 
+#include "GCL/Notification.h"
+
+
 int	main(int ac, char *av[])
 {
-	GGE::Game game(60);
+	GCL::Notification::Test::Process();
+
+	DEBUG_INSTRUCTION(system("pause");)
+	return 0;
+
+
+	GGE::Game game{ 60 };
 
 	try
 	{
 // [TEST]
 
 		Sonic sonic = std::move(std::make_pair(0.f, 0.f));
-		// Sonic sonic = std::move(std::make_pair(200.f, 200.f));
 		sonic.ForceCurrentStatus(Sonic::Status::Walking);
 		game.Entities() += static_cast<IEntity*>(&sonic);
 
@@ -31,11 +39,12 @@ int	main(int ac, char *av[])
 		};
 
 		game += new GGE::Game::SceneType(
-			"SPRITES/bg_blue.png"
-			, {
-				static_cast<IEntity*>(&sonic)
-				, static_cast<IEntity*>(&sonicIA)
-			});
+			"SPRITES/bg_blue.png",
+			{
+					static_cast<IEntity*>(&sonic)
+				,	static_cast<IEntity*>(&sonicIA)
+			}
+		);
 
 		game.setActiveScene(0);
 
