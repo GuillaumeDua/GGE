@@ -10,9 +10,9 @@
 
 # include <SFML/Graphics.hpp>
 
-# include "GCL/Exception.h"
-# include "GCL/Maths.h"
-# include "GCL/Vector.h"
+# include <GCL_CPP/Exception.h>
+# include <GCL_CPP/Maths.h>
+# include <GCL_CPP/Vector.h>
 
 # include "IEntity.h"
 # include "Sprite.h"

@@ -1,10 +1,9 @@
 #include <SFML/Graphics.hpp>
-#include "GCL/Exception.h"
-#include "GCL/Preprocessor.h"
+
+#include <GCL_CPP/Exception.h>
+#include <GCL_CPP/Preprocessor.h>
+#include <GCL_CPP/Notification.h>
 #include "__Game.h"
-
-#include "GCL/Notification.h"
-
 
 int	main(int ac, char *av[])
 {

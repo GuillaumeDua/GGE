@@ -7,7 +7,7 @@
 # include "IEntity.h"
 # include <queue>
 # include <vector>
-# include "GCL/Vector.h"
+# include <GCL_CPP/Vector.h>
 
 namespace CollisionEngine
 {

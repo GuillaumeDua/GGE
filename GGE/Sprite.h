@@ -1,7 +1,7 @@
 #ifndef __GGE_SPRITES__
 # define __GGE_SPRITES__
 
-# include "GCL/Preprocessor.h"
+# include <GCL_CPP/Preprocessor.h>
 # include <SFML/Graphics.hpp>
 # include <vector>
 # include <iostream>

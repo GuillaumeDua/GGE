@@ -9,8 +9,8 @@
 # include <map>
 # include <memory>
 
-# include "GCL/Exception.h"
-# include "GCL/Vector.h"
+# include <GCL_CPP/Exception.h>
+# include <GCL_CPP/Vector.h>
 # include "RENDERING/Types.h"
 # include "IEntity.h"
 # include "Entity.h"
