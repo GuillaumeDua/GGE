@@ -12,22 +12,23 @@ namespace GCL
 {
 	namespace Notification
 	{
+		// Warning : Make sure that Notifications's callbacks captured variable have life-length that are bigger than this object.
 		// [Todo] : Replace std::string by template parameter
-		// template <typename T_EventName = std::string>
+		template <typename T_EventIDType = std::string>
 		struct Notifiable
 		{
-			using T_EventName = std::string;
-			using EventContainer = std::map<T_EventName, GCL::Vector<std::function<void()> > >;
+			using T_EventID = typename T_EventIDType;
+			using EventContainer = typename std::map<typename T_EventID, GCL::Vector<std::function<void()> > >;
 
-			EventContainer::mapped_type &	on(const T_EventName & name)
+			typename EventContainer::mapped_type &	on(const T_EventID & name)
 			{
 				return _events[name];
 			}
-			void							Notify(const T_EventName & name)
+			void							Notify(const T_EventID & name)
 			{
 				_pendingStatus.push(name);
 			}
-			void							ResolvePendingNotification(void)
+			void							ResolvePendingNotifications(void)
 			{
 				while (!_pendingStatus.empty())
 				{
@@ -35,7 +36,7 @@ namespace GCL
 					_pendingStatus.pop();
 				}
 			}
-			void							TriggerEvent(const T_EventName & name)
+			void							TriggerEvent(const T_EventID & name)
 			{
 				if (_events.find(name) == _events.end())
 					return;
@@ -46,12 +47,12 @@ namespace GCL
 
 		protected:
 			EventContainer					_events;
-			std::queue<T_EventName>			_pendingStatus;
+			std::queue<T_EventID>			_pendingStatus;
 		};
 
 		namespace Test
 		{
-			struct Toto : public Notifiable
+			struct Toto : public Notifiable<>
 			{
 				void	DoStuff(void)
 				{
@@ -73,18 +74,13 @@ namespace GCL
 				}
 			};
 
-			void	Titi(char c, int i, std::string str)
-			{
-				std::cout << i << std::endl;
-			}
-
 			void	Process()
 			{
 				Toto toto;
 				toto.on("Collision") += [](){ std::cout << "Collision events triggered" << std::endl; };
 				toto.on("Collision") += [&toto](){ toto.DoStuff(); };
 				toto.on("Collision") += [&toto]()  { toto.IncrI(); };
-				toto.on("Collision") += [&toto]()  { toto.IncrI(); };
+				toto.on("Collision") += [toto]()  mutable { toto.IncrI(); };
 				// toto.on("Collision") += [toto]()   { toto.IncrI(); };
 
 				CollisionNotificationLogger collisionLogger;

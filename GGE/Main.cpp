@@ -8,10 +8,10 @@
 
 int	main(int ac, char *av[])
 {
-	GCL::Notification::Test::Process();
+	//GCL::Notification::Test::Process();
 
-	DEBUG_INSTRUCTION(system("pause");)
-	return 0;
+	//DEBUG_INSTRUCTION(system("pause");)
+	//return 0;
 
 
 	GGE::Game game{ 60 };
