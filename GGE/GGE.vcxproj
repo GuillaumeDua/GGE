@@ -81,7 +81,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\DEV\EXT_LIBS\SFML-2.2\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\DEV\PROJECTS\GCL_CPP;C:\DEV\EXT_LIBS\SFML-2.2\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -126,13 +126,18 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Exception.h" />
+    <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Log.h" />
+    <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Maths.h" />
+    <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Notification.h" />
+    <ClInclude Include="..\..\GCL_CPP\GCL_CPP\ObjBinding.h" />
+    <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Preprocessor.h" />
+    <ClInclude Include="..\..\GCL_CPP\GCL_CPP\SelfUpdate.h" />
+    <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Task.h" />
+    <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Thread.h" />
+    <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Vector.h" />
     <ClInclude Include="CooldownManager.h" />
     <ClInclude Include="Entity.h" />
-    <ClInclude Include="GCL\Exception.h" />
-    <ClInclude Include="GCL\Maths.h" />
-    <ClInclude Include="GCL\ObjBinding.h" />
-    <ClInclude Include="GCL\Preprocessor.h" />
-    <ClInclude Include="GCL\Vector.h" />
     <ClInclude Include="ICollisionEngine.h" />
     <ClInclude Include="IEntity.h" />
     <ClInclude Include="Sprite.h" />
