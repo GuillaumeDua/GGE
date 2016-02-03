@@ -30,8 +30,8 @@ namespace GGE
 	class Game final	//	[Todo] : Replace final by a game-to-game inheritance (e.g final logic into a pure virtual [?])
 	{
 	public:
-		Game() = delete;
-		Game(const size_t TicksPerSec)
+		// Game() = delete;
+		Game(const size_t TicksPerSec = 60)
 			: _ticksSystem(TicksPerSec)
 			, _window(sf::VideoMode(800, 600, 32), "GEE Rendering")
 		{

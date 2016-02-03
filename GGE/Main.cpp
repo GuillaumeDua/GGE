@@ -13,7 +13,7 @@ int	main(int ac, char *av[])
 	//return 0;
 
 
-	GGE::Game game{ 60 };
+	GGE::Game game;
 
 	try
 	{
