@@ -187,14 +187,14 @@ public:
 	{
 		this->_rotation = value;
 	}
-	inline void								SetColor(const sf::Color & value)
-	{
-		this->_spriteModifier._color = value;
-	}
-	inline const sf::Color &				GetColor(void) const
-	{
-		return this->_spriteModifier._color;
-	}
+	//inline void								SetColor(const sf::Color & value)
+	//{
+	//	this->_spriteModifier._color = value;
+	//}
+	//inline const sf::Color &				GetColor(void) const
+	//{
+	//	return this->_spriteModifier._color;
+	//}
 	inline void								SetMovement(const PositionType & target)
 	{
 		PositionType applicatedDestination = target;
@@ -235,6 +235,10 @@ public:
 	inline SpriteModifiers &				GetSpriteModifier(void)
 	{
 		return _spriteModifier;
+	}
+	inline const Animation &				GetAnimation(void) const
+	{
+		return this->_animations;
 	}
 
 protected:

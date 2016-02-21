@@ -23,7 +23,7 @@ int	main(int ac, char *av[])
 		sonic.ForceCurrentStatus(Sonic::Status::Walking);
 		game.Entities() += static_cast<IEntity*>(&sonic);
 
-		Sonic sonicIA({ 0.f, 0.f });
+		Sonic sonicIA({ 200.f, 300.f });
 		sonicIA.ForceCurrentStatus(Sonic::Status::Walking);
 		game.Entities() += static_cast<IEntity*>(&sonicIA);
 
@@ -31,9 +31,11 @@ int	main(int ac, char *av[])
 		{
 			[&sonicIA](const HitBox * hb)
 			{
-				std::cout << "[+] Collision detected" << std::endl;
-				sonicIA.ForceCurrentStatus(Sonic::Status::Destroying);
-				// sonicIA.DoesRequierUnregisterFromCollisionEngine();
+				if (sonicIA.GetCurrentStatus() != Sonic::Status::Destroying)
+				{
+					std::cout << "[+] Collision detected" << std::endl;
+					sonicIA.ForceCurrentStatus(Sonic::Status::Destroying);
+				}
 			}
 		};
 
@@ -54,7 +56,7 @@ int	main(int ac, char *av[])
 
 		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseWheelMoved, [&, sonicPtr](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
 		{
-			sf::Color color = sonicPtr->GetColor();
+			sf::Color color = sonicPtr->GetSpriteModifier()._color;
 
 			if (event.mouseWheel.delta)
 			{
@@ -68,7 +70,7 @@ int	main(int ac, char *av[])
 				color.g -= 10;
 				color.b -= 10;
 			}
-			sonicPtr->SetColor(color);
+			sonicPtr->GetSpriteModifier()._color = color;
 
 			return GGE::UserEventsHandler::RegisteredCBReturn::OK;
 		}));

@@ -27,7 +27,9 @@ const Sonic_EntityDescriptor::Behavior Sonic_EntityDescriptor::_behavior =
 		Sonic_EntityDescriptor::Status::Destroying,
 		[&](Entity<Sonic_EntityDescriptor> & entity) mutable -> bool
 		{
-			
+			if (entity.GetAnimation().at(entity.GetCurrentStatus()).IsOver())
+				entity.ForceCurrentStatus(Sonic_EntityDescriptor::Status::Walking);
+				//delete &entity;
 
 			// std::cout << "Sonic_EntityDescriptor::_behavior called !" << std::endl;
 			return true;
