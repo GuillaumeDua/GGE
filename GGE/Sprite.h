@@ -11,6 +11,7 @@ namespace GGE
 {
 	namespace SPRITE
 	{
+		// A whole sprite sheet
 		struct Sheet
 		{
 			Sheet() = delete;
@@ -27,11 +28,12 @@ namespace GGE
 			//}
 
 			explicit Sheet(const std::string & texture_path
-				, const std::pair<int, int> && dimension
-				, const std::pair<int, int> && qty)
+				, std::pair<int, int> && dimension
+				, std::pair<int, int> && qty)
 				: _texture_path(texture_path)
-				, _dimension(dimension)
-				, _qty(qty)
+				, _dimension(std::move(dimension))
+				, _qty(std::move(qty))
+				, _spriteDimension{ _dimension.first / _qty.first, _dimension.second / _qty.second }
 			{
 				if (!(this->_isValid = this->_texture.loadFromFile(texture_path)))
 					std::cerr << "[Error] : Fail to load sprite sheet : [" << texture_path << ']' << std::endl;
@@ -69,9 +71,13 @@ namespace GGE
 				}
 			}
 
-			const std::vector<sf::Sprite> &	GetContent(void) const
+			inline const std::vector<sf::Sprite> &	GetContent(void) const
 			{
 				return this->_sprites;
+			}
+			inline const std::pair<int, int> &		GetSpriteDimension(void) const
+			{
+				return _spriteDimension;
 			}
 
 		protected:
@@ -80,6 +86,7 @@ namespace GGE
 			const std::string						_texture_path;
 			const std::pair<int, int>				_dimension;
 			const std::pair<int, int>				_qty;
+			const std::pair<int, int>						_spriteDimension;
 			bool									_isValid;
 			sf::Texture								_texture;
 		};
@@ -146,7 +153,13 @@ namespace GGE
 			{
 				assert(offset + qty <= spriteSheet.GetContent().size());
 				for (size_t it = offset; it < qty; ++it)
+				{
 					this->_sprites.push_back(spriteSheet.GetContent().at(it));
+					this->_sprites.back().setOrigin(
+						static_cast<float>(spriteSheet.GetSpriteDimension().first) / 2.f
+						, static_cast<float>(spriteSheet.GetSpriteDimension().second) / 2.f
+					);
+				}
 				this->_currentSpriteIterator = this->_sprites.begin();
 			}
 

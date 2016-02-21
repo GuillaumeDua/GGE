@@ -19,11 +19,11 @@ int	main(int ac, char *av[])
 	{
 // [TEST]
 
-		Sonic sonic = std::move(std::make_pair(0.f, 0.f));
+		Sonic sonic = std::move(std::make_pair(400.f, 400.f));
 		sonic.ForceCurrentStatus(Sonic::Status::Walking);
 		game.Entities() += static_cast<IEntity*>(&sonic);
 
-		Sonic sonicIA({ 400.f, 400.f });
+		Sonic sonicIA({ 0.f, 0.f });
 		sonicIA.ForceCurrentStatus(Sonic::Status::Walking);
 		game.Entities() += static_cast<IEntity*>(&sonicIA);
 

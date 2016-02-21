@@ -62,7 +62,8 @@ public:
 		}
 		void							Set(const PositionType & destination)
 		{
-			assert(destination.first > 0 && destination.second > 0);
+			_destination.first = destination.first < 0 ? 0 : destination.first;
+			_destination.second = destination.second < 0 ? 0 : destination.second;
 
 			_destination = destination;
 			_modifiers.first = GCL::Maths::Cos(_destination.first);
@@ -123,7 +124,6 @@ public:
 		float									_rotation = .0f;
 	};
 
-
 	Entity(const std::pair<float, float> & pos)
 		: _currentStatus(EntityDescriptor::Default)
 		, HitBox(pos, EntityDescriptor::_size)
@@ -137,9 +137,18 @@ public:
 	void									Draw(sf::RenderWindow & renderWindow)
 	{
 		sf::Sprite & sprite = *(this->_animations.at(this->_currentStatus).GetCurrent());
-		sprite.setPosition(_position.first, _position.second);
+		sprite.setPosition(_position.first + (_size.first / 2), _position.second + (_size.second / 2));
 		_spriteModifier.Apply(sprite);
 		renderWindow.draw(sprite);
+
+		DEBUG_INSTRUCTION(
+			_debugBox.setSize(sf::Vector2f(static_cast<float>(_size.first), static_cast<float>(_size.second)));
+			_debugBox.setOutlineColor(sf::Color::Red);
+			_debugBox.setFillColor(sf::Color::Transparent);
+			_debugBox.setOutlineThickness(5);
+			_debugBox.setPosition(_position.first, _position.second);
+		);
+		renderWindow.draw(_debugBox);
 	}
 	bool									Behave(void)
 	{
@@ -188,17 +197,20 @@ public:
 	}
 	inline void								SetMovement(const PositionType & target)
 	{
-		// flip
-		const float originalXScale = _spriteModifier._scale.first;
-		_spriteModifier._scale = { static_cast<float>(target.first) < _position.first ? -1.0f : 1.0f, 1.0f };
-		if (_spriteModifier._scale.first != originalXScale)
-			this->SetPosition({ (_spriteModifier._scale.first == -1.0f
-			? _position.first + _size.first
-			: _position.first - _size.first
-			)
-			, _position.second
-		});
-		this->_movement.Set(target);
+		PositionType applicatedDestination = target;
+		// X-flip
+		if (static_cast<float>(target.first) < _position.first)	// Moving to the left
+			_spriteModifier._scale = { -1.0f, 1.0f };
+		else if (target.first > _position.first + _size.first)	// Moving to the right
+		{
+			_spriteModifier._scale = { 1.0f, 1.0f };
+			applicatedDestination.first = target.first - _size.first;
+		}
+		// Y-flip
+		if (target.second > _position.second + _size.second)	// Moving to the bottom
+			applicatedDestination.second = target.second - _size.second;
+
+		this->_movement.Set(applicatedDestination);
 	}
 
 	inline const float &					GetRotation(void) const
@@ -226,6 +238,8 @@ protected:
 	MovementType							_movement;
 
 	SpriteModifiers							_spriteModifier;
+
+	DEBUG_INSTRUCTION(sf::RectangleShape	_debugBox;);
 };
 
 //
