@@ -198,26 +198,40 @@ public:
 	inline void								SetMovement(const PositionType & target)
 	{
 		PositionType applicatedDestination = target;
-		// X-flip
-		if (static_cast<float>(target.first) < _position.first)	// Moving to the left
+
+		// X-move
+		if (target.first < _position.first)							// non-inclusive left
 			_spriteModifier._scale = { -1.0f, 1.0f };
-		else if (target.first > _position.first + _size.first)	// Moving to the right
+		else if (target.first > _position.first + _size.first)		// non-inclusive right
 		{
 			_spriteModifier._scale = { 1.0f, 1.0f };
 			applicatedDestination.first = target.first - _size.first;
 		}
-		// Y-flip
-		if (target.second > _position.second + _size.second)	// Moving to the bottom
+		else														// inclusive x-move
+			applicatedDestination.first = _position.first;
+
+		// Y-move
+		if (target.second < _position.second)						// non-inclusive top
+			;
+		else if(target.second > _position.second + _size.second)	// non-inclusive bot
 			applicatedDestination.second = target.second - _size.second;
+		else														// inclusive y-move
+			applicatedDestination.second = _position.second;
 
 		this->_movement.Set(applicatedDestination);
 	}
-
+	inline void								SetAbsoluteMovement(const PositionType & target)	// Absolute movement from top-left corner
+	{
+		if (static_cast<float>(target.first) < _position.first)	// Moving to the left
+			_spriteModifier._scale = { -1.0f, 1.0f };
+		else if (target.first > _position.first + _size.first)	// Moving to the right
+			_spriteModifier._scale = { 1.0f, 1.0f };
+		this->_movement.Set(applicatedDestination);
+	}
 	inline const float &					GetRotation(void) const
 	{
 		return this->_rotation;
 	}
-
 	inline SpriteModifiers &				GetSpriteModifier(void)
 	{
 		return _spriteModifier;

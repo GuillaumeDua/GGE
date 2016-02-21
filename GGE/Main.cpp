@@ -82,7 +82,7 @@ int	main(int ac, char *av[])
 			sonicPtr->SetMovement(std::make_pair(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)));
 			return GGE::UserEventsHandler::RegisteredCBReturn::OK;
 		}));
-		game.GetCooldownManagerSystem() += GGE::Events::CooldownManager::Reconductible::EventType({ std::chrono::seconds(1), [](){ std::cout << "CD done !" << std::endl; return true; } });
+		// game.GetCooldownManagerSystem() += GGE::Events::CooldownManager::Reconductible::EventType({ std::chrono::seconds(1), [](){ std::cout << "CD done !" << std::endl; return true; } });
 // [/TEST]
 
 		game.Start();
