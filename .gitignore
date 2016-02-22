@@ -2,7 +2,7 @@
 ###################
 *.com
 *.class
-*.dll
+#*.dll
 *.exe
 *.o
 *.so
@@ -19,7 +19,7 @@
 *.sdf
 *.opensdf
 *.suo
-GGE/*.vcxproj
+./GGE/*.vcxproj
 
 # VC compile gen files #
 ########################
