@@ -19,7 +19,7 @@
 *.sdf
 *.opensdf
 *.suo
-*.vcxproj
+GGE/*.vcxproj
 
 # VC compile gen files #
 ########################
