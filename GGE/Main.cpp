@@ -5,14 +5,39 @@
 #include <GCL_CPP/Notification.h>
 #include "__Game.h"
 
+template <typename T>
+struct RefWrapper
+{
+	RefWrapper(const RefWrapper & rw)
+		: _ref(rw._ref)
+	{}
+	RefWrapper(T & ref)
+		: _ref(ref)
+	{}
+
+	inline T &	Get(void)
+	{
+		return _ref;
+	}
+	inline const T &	Get(void) const
+	{
+		return _ref;
+	}
+	operator T&()
+	{
+		return _ref;
+	}
+	operator const T&(void) const
+	{
+		return _ref;
+	}
+
+protected:
+	T & _ref;
+};
+
 int	main(int ac, char *av[])
 {
-	//GCL::Notification::Test::Process();
-
-	//DEBUG_INSTRUCTION(system("pause");)
-	//return 0;
-
-
 	GGE::Game game;
 
 	try
@@ -27,9 +52,9 @@ int	main(int ac, char *av[])
 		sonicIA.ForceCurrentStatus(Sonic::Status::Walking);
 		game.Entities() += static_cast<IEntity*>(&sonicIA);
 
-		sonicIA.CollisionsEvents() +=
+		sonicIA.on(CollisionEngine::Events::CollisionEvent) +=
 		{
-			[&sonicIA](const HitBox * hb)
+			[&sonicIA]() // const HitBox * hb
 			{
 				if (sonicIA.GetCurrentStatus() != Sonic::Status::Destroying)
 				{

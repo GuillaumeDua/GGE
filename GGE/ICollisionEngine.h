@@ -1,13 +1,11 @@
 #ifndef __COLLISION_ENGINE__
 # define __COLLISION_ENGINE__
 
-// [Todo] : CollisionNotification
-// [Todo] : OnCollisionPolicy -> std::unordered_map<CollisionCode or type2Int, std::function> + NeedDelete ?
-
 # include "IEntity.h"
 # include <queue>
 # include <vector>
 # include <GCL_CPP/Vector.h>
+# include "EntityEvent.h"
 
 namespace CollisionEngine
 {
@@ -25,6 +23,11 @@ namespace CollisionEngine
 					);
 			}
 		};
+	}
+
+	namespace Events
+	{
+		const T_EntityNotifiable<>::T_EventID CollisionEvent = "Collision detected";
 	}
 
 	struct Interface
@@ -81,12 +84,15 @@ namespace CollisionEngine
 					}
 				}
 			}
+			__declspec(deprecated("deprecated function : To replace with T_EntityNotifiable"))
 			void					ApplyOnCollisionEvents(void)
 			{
 				for (auto & elem : _entities)
 					if (elem->HasCollisions())
-						elem->OnCollision();
-						
+					{
+						elem->TriggerEvent(Events::CollisionEvent);
+						elem->ClearCollisions();
+					}
 			}
 
 		protected:

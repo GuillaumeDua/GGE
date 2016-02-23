@@ -160,19 +160,14 @@ public:
 		return this->_behavior.at(this->_currentStatus)(*this);
 	}
 	// [HitBox]
-	void									OnCollision(void)
-	{
-		for (auto collided_hitbox : _collisions)
-			for (auto & onCollisonEventCB : _onCollsionEventsCB)
-				onCollisonEventCB(collided_hitbox);
-		
-		this->_collisions.clear();
-	}
-	using T_OnCollsionEvent_CB = GCL::Vector < std::function<void(const HitBox*)> > ;
-	T_OnCollsionEvent_CB &					CollisionsEvents()
-	{
-		return this->_onCollsionEventsCB;
-	}
+	//void									OnCollision(void)
+	//{
+	//	for (auto collided_hitbox : _collisions)
+	//		for (auto & onCollisonEventCB : _onCollsionEventsCB)
+	//			onCollisonEventCB(collided_hitbox);
+	//	
+	//	this->_collisions.clear();
+	//}
 	// [Status]
 	inline const Status						GetCurrentStatus(void) const
 	{
@@ -247,7 +242,6 @@ protected:
 	Entity() = delete;
 
 	//std::queue<Status>					_pendingStatus;	// [Todo]::[?]
-	T_OnCollsionEvent_CB					_onCollsionEventsCB;
 	Status									_currentStatus;
 	Behavior								_behavior;
 	Animation								_animations;

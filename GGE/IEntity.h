@@ -3,11 +3,12 @@
 
 # include <map>
 # include <SFML/Graphics/RenderWindow.hpp>
+# include <GCL_CPP/Notification.h>
+# include "EntityEvent.h"
 
-//
-// [Todo] : OnCollisionPolicy [?]
-//
+
 struct HitBox
+	: public GCL::Notification::Notifiable<>
 {
 	using PositionType = std::pair < float, float >;
 	using SizeType = std::pair < int, int >;
@@ -72,8 +73,6 @@ struct HitBox
 		return _unregisterFromCollisionEngineRequiered;
 	}
 
-	virtual	void								OnCollision(){}
-
 protected:
 	PositionType								_position;
 	SizeType									_size;
@@ -84,8 +83,8 @@ protected:
 
 struct IEntity
 {
-	virtual void							Draw(sf::RenderWindow & renderWindow) = 0;
-	virtual bool							Behave(void) = 0;
+	virtual void								Draw(sf::RenderWindow & renderWindow) = 0;
+	virtual bool								Behave(void) = 0;
 };
 
 
