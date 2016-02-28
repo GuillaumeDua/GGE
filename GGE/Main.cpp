@@ -5,37 +5,6 @@
 #include <GCL_CPP/Notification.h>
 #include "__Game.h"
 
-template <typename T>
-struct RefWrapper
-{
-	RefWrapper(const RefWrapper & rw)
-		: _ref(rw._ref)
-	{}
-	RefWrapper(T & ref)
-		: _ref(ref)
-	{}
-
-	inline T &	Get(void)
-	{
-		return _ref;
-	}
-	inline const T &	Get(void) const
-	{
-		return _ref;
-	}
-	operator T&()
-	{
-		return _ref;
-	}
-	operator const T&(void) const
-	{
-		return _ref;
-	}
-
-protected:
-	T & _ref;
-};
-
 int	main(int ac, char *av[])
 {
 	GGE::Game game;
@@ -44,31 +13,31 @@ int	main(int ac, char *av[])
 	{
 // [TEST]
 
-		Sonic sonic = std::move(std::make_pair(400.f, 400.f));
-		sonic.ForceCurrentStatus(Sonic::Status::Walking);
-		game.Entities() += static_cast<IEntity*>(&sonic);
+		std::shared_ptr<Sonic> sonic = std::make_shared<Sonic>(std::move(std::make_pair(400.f, 400.f)));
+		sonic->ForceCurrentStatus(Sonic::Status::Walking);
+		game.Entities() += sonic;
 
-		Sonic sonicIA({ 200.f, 300.f });
-		sonicIA.ForceCurrentStatus(Sonic::Status::Walking);
-		game.Entities() += static_cast<IEntity*>(&sonicIA);
+		std::shared_ptr<Sonic> sonicIA = std::make_shared<Sonic>(std::move(std::make_pair(200.f, 300.f)));
+		sonicIA->ForceCurrentStatus(Sonic::Status::Walking);
+		game.Entities() += sonicIA;
 
-		sonicIA.on(CollisionEngine::Events::CollisionEvent) +=
+		sonicIA->on(CollisionEngine::Events::CollisionEvent) +=
 		{
-			[&sonicIA]() // const HitBox * hb
+			[&sonicIA]() // HitBox
 			{
-				if (sonicIA.GetCurrentStatus() != Sonic::Status::Destroying)
+				if (sonicIA->GetCurrentStatus() != Sonic::Status::Destroying)
 				{
 					std::cout << "[+] Collision detected" << std::endl;
-					sonicIA.ForceCurrentStatus(Sonic::Status::Destroying);
+					sonicIA->ForceCurrentStatus(Sonic::Status::Destroying);
 				}
 			}
 		};
 
-		game += new GGE::Game::SceneType(
+		game += std::make_shared<GGE::Game::SceneType>(
 			"SPRITES/bg_blue.png",
-			{
-					static_cast<IEntity*>(&sonic)
-				,	static_cast<IEntity*>(&sonicIA)
+			std::initializer_list<std::shared_ptr<IEntity>>{
+				sonic
+				, sonicIA
 			}
 		);
 
@@ -77,11 +46,10 @@ int	main(int ac, char *av[])
 // 1 : Controlable
 		// [Fun] : Funny event registering system test
 		int		callIt		= 0;
-		Sonic *	sonicPtr	= &sonic;
 
-		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseWheelMoved, [&, sonicPtr](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
+		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseWheelMoved, [&, sonic](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
 		{
-			sf::Color color = sonicPtr->GetSpriteModifier()._color;
+			sf::Color color = sonic->GetSpriteModifier()._color;
 
 			if (event.mouseWheel.delta)
 			{
@@ -95,7 +63,7 @@ int	main(int ac, char *av[])
 				color.g -= 10;
 				color.b -= 10;
 			}
-			sonicPtr->GetSpriteModifier()._color = color;
+			sonic->GetSpriteModifier()._color = color;
 
 			return GGE::UserEventsHandler::RegisteredCBReturn::OK;
 		}));
@@ -104,9 +72,9 @@ int	main(int ac, char *av[])
 			// std::cout << "Putain, mais te barre pas" << std::endl;
 			return GGE::UserEventsHandler::RegisteredCBReturn::OK;
 		}));
-		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseButtonPressed, [&, sonicPtr](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
+		game.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseButtonPressed, [&, sonic](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
 		{
-			sonicPtr->SetMovement(std::make_pair(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)));
+			sonic->SetMovement(std::make_pair(static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y)));
 			return GGE::UserEventsHandler::RegisteredCBReturn::OK;
 		}));
 		// game.GetCooldownManagerSystem() += GGE::Events::CooldownManager::Reconductible::EventType({ std::chrono::seconds(1), [](){ std::cout << "CD done !" << std::endl; return true; } });

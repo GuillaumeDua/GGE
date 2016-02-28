@@ -33,13 +33,13 @@ namespace CollisionEngine
 	struct Interface
 	{
 		// [Register entities]
-		virtual Interface &			operator+=(std::vector<HitBox*> &) = 0;
-		virtual Interface &			operator+=(HitBox &) = 0;
+		virtual Interface &			operator+=(std::vector<std::shared_ptr<HitBox>> &) = 0;
+		virtual Interface &			operator+=(const std::shared_ptr<HitBox> &) = 0;
 		virtual void				RemoveUnregistered(void) = 0;
 		virtual void				Unload(void) = 0;
 		// [Basis]
 		virtual void				Calculate(void) = 0;
-		virtual void				Calculate(HitBox &) = 0;
+		virtual void				Calculate(std::shared_ptr<HitBox> &) = 0;
 		// [Events]
 		virtual void				ApplyOnCollisionEvents(void) = 0;
 	};
@@ -49,19 +49,19 @@ namespace CollisionEngine
 		template <typename T_CollisionAlgorythm>
 		struct Linear : public Interface
 		{
-			virtual Interface &		operator+=(std::vector<HitBox*> & hbs)
+			virtual Interface &		operator+=(std::vector<std::shared_ptr<HitBox>> & hbs)
 			{
 				this->_entities.insert(_entities.end(), hbs.begin(), hbs.end());
 				return *this;
 			}
-			virtual Interface &		operator+=(HitBox & e)
+			virtual Interface &		operator+=(const std::shared_ptr<HitBox> & e)
 			{
-				this->_entities.push_back(&e);
+				this->_entities.push_back(e);
 				return *this;
 			}
 			void					RemoveUnregistered(void)
 			{
-				std::remove_if(_entities.begin(), _entities.end(), [=](HitBox * hb) -> bool { return hb->DoesRequierUnregisterFromCollisionEngine(); });
+				std::remove_if(_entities.begin(), _entities.end(), [=](const std::shared_ptr<HitBox> & hb) -> bool { return hb->DoesRequierUnregisterFromCollisionEngine(); });
 			}
 			void					Unload(void)
 			{
@@ -71,16 +71,16 @@ namespace CollisionEngine
 			virtual void			Calculate(void)
 			{
 				for (auto & elem : _entities)
-					this->Calculate(*elem);
+					this->Calculate(elem);
 			}
-			virtual void			Calculate(HitBox & hb)
+			virtual void			Calculate(std::shared_ptr<HitBox> & hb)
 			{
 				for (auto & elem : _entities)
 				{
-					if (elem != &hb && T_CollisionAlgorythm::IsCollision(*elem, hb))
+					if (elem != hb && T_CollisionAlgorythm::IsCollision(*elem, *hb))
 					{
-						elem->NotifyCollision(hb);
-						hb.NotifyCollision(elem);
+						elem->NotifyCollision(*(hb.get()));
+						hb->NotifyCollision(*(elem.get()));
 					}
 				}
 			}
@@ -96,7 +96,7 @@ namespace CollisionEngine
 			}
 
 		protected:
-			std::vector<HitBox*>	_entities;
+			std::vector<std::shared_ptr<HitBox>>	_entities;
 		};
 
 		//	-----------
@@ -118,8 +118,8 @@ namespace CollisionEngine
 			QuadTree & operator=(const QuadTree &&) = delete;
 			~QuadTree() = default;
 
-			explicit QuadTree(const HitBox & screen)
-				: HitBox(screen)
+			explicit QuadTree(const std::shared_ptr<HitBox> & screen)
+				: HitBox(*screen)
 				, _NW(0x0)
 				, _NE(0x0)
 				, _SW(0x0)

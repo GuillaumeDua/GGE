@@ -14,18 +14,27 @@ namespace GGE
 	template <typename T_Drawable>
 	struct Scene
 	{
-		using T_DrawableType = T_Drawable*;
-		using DrawableVectorType = typename std::vector < T_DrawableType >;
+		using T_DrawableType = std::shared_ptr<T_Drawable>;
+		using DrawableVectorType = typename std::vector < T_DrawableType > ;
 
 		Scene() = default;
-		Scene(const std::string & backgroundTexturePath, DrawableVectorType && DrawableVectorType = DrawableVectorType())
-			: _drawables(DrawableVectorType)
+		//Scene(const std::string & backgroundTexturePath, DrawableVectorType && DrawableVectorType = DrawableVectorType())
+		Scene(const std::string & backgroundTexturePath, std::initializer_list<T_DrawableType> & DrawableVectorType)
+			: _drawables(DrawableVectorType.begin(), DrawableVectorType.end())
 		{
 			this->LoadBackground(backgroundTexturePath);
 		}
+		/*template <typename T_Drawable_Param>
+		Scene(const std::string & backgroundTexturePath, std::initializer_list<std::shared_ptr<T_Drawable_Param>> & DrawableVectorType)
+		{
+			for (auto & elem : DrawableVectorType)
+				_drawables.push_back(std::static_pointer_cast<T_DrawableType>(elem));
+			this->LoadBackground(backgroundTexturePath);
+		}*/
+
 		~Scene() = default;
 
-		inline Scene &				operator+=(T_DrawableType & drawable)
+		inline Scene &				operator+=(const std::shared_ptr<T_DrawableType> & drawable)
 		{
 			this->_drawables.emplace_back(drawable);
 			return *this;

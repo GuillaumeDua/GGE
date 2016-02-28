@@ -58,11 +58,7 @@ struct HitBox
 	}
 	void										NotifyCollision(const HitBox & hb)
 	{
-		this->NotifyCollision(&hb);
-	}
-	void										NotifyCollision(const HitBox * hb)
-	{
-		_collisions.push_back(hb);
+		_collisions.push_back(&hb);
 	}
 	inline const std::vector<const HitBox*> &	GetCollisions(void) const
 	{

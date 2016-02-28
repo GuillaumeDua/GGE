@@ -41,7 +41,7 @@ namespace GGE
 		Game(const Game &&) = delete;
 		~Game()
 		{
-			std::for_each(_scenes.begin(), _scenes.end(), [&](SceneType * elem){ delete elem; });
+			// std::for_each(_scenes.begin(), _scenes.end(), [&](SceneType * elem){ delete elem; });
 		}
 
 		void												Initialize(void)
@@ -119,32 +119,20 @@ namespace GGE
 		{
 			this->_IsRunning = false;
 		}
-
-		// Rendering
-		/*inline void											SetBackground(const Sprite & sprite)
-		{
-			this->_backgroundSprite = sprite;
-		}
-		inline void											SetBackground(const std::string & texture_path)
-		{
-			if (!(_bufBatckgroundTexture.loadFromFile(texture_path)))
-				throw GCL::Exception("[Error] : GGE::Game::SetBackground : Cannot load texture from file : " + texture_path);
-			this->_backgroundSprite.setTexture(_bufBatckgroundTexture);
-		}
-		inline void											SetBackground(const Texture & texture)
-		{
-			this->_backgroundSprite.setTexture(texture);
-		}*/
 		// Scenes
 		using SceneType = GGE::Scene<IEntity>;
-		Game &												operator+=(SceneType * scene)
+		Game &												operator+=(const std::shared_ptr<SceneType> & scene)
 		{
 			this->_scenes.push_back(scene);
 			return *this;
 		}
-		inline SceneType *									operator[](const size_t it)
+		inline std::shared_ptr<SceneType>					operator[](const size_t it)// throw (std::out_of_range)
 		{
 			return this->_scenes.at(it);
+		}
+		inline std::vector<std::shared_ptr<SceneType>> &	Scenes(void)
+		{
+			return _scenes;
 		}
 		void												setActiveScene(const size_t i)
 		{
@@ -153,7 +141,7 @@ namespace GGE
 
 			this->_collisionEngine->Unload();
 			for (auto & entity : _entities)
-				*(this->_collisionEngine) += *dynamic_cast<HitBox*>(entity);
+				*(this->_collisionEngine) += std::dynamic_pointer_cast<HitBox>(entity);
 		}
 		// Events handling
 		inline const UserEventsHandler::MapType &			GetEventHandler_map(void)
@@ -226,7 +214,7 @@ namespace GGE
 			_frameEventManager.Check();
 		}
 		// Entities 
-		using T_EntityVector = GCL::Vector<IEntity*>;
+		using T_EntityVector = GCL::Vector<std::shared_ptr<IEntity>>;
 		inline T_EntityVector &								Entities(void)
 		{
 			return _entities;
@@ -283,40 +271,40 @@ namespace GGE
 			TicksSystem & operator=(const TicksSystem &) = delete;
 			~TicksSystem() = default;
 
-			const float										FPS = 60.f;
-			const sf::Time 									TimePerFrame = sf::seconds(1.f / FPS);
+			const float												FPS = 60.f;
+			const sf::Time 											TimePerFrame = sf::seconds(1.f / FPS);
 
-			static	const size_t							DEFAULT_TICKS_PER_SEC	= 50;
-			static	const size_t							DEFAULT_FRAME_SKIP		= 5;
-					const size_t							_TicksPerSec			= DEFAULT_TICKS_PER_SEC;
-					const size_t							_TicksToSkip			= 1000 / _TicksPerSec;
-					const size_t							_MaxFameSkip			= DEFAULT_FRAME_SKIP;
+			static	const size_t									DEFAULT_TICKS_PER_SEC	= 50;
+			static	const size_t									DEFAULT_FRAME_SKIP		= 5;
+					const size_t									_TicksPerSec			= DEFAULT_TICKS_PER_SEC;
+					const size_t									_TicksToSkip			= 1000 / _TicksPerSec;
+					const size_t									_MaxFameSkip			= DEFAULT_FRAME_SKIP;
 					
 		}							_ticksSystem;
 
 		// Rendering :
 				// [Todo] : Use GGE::Screenhere
-				RenderWindow								_window;
-				Sprite										_backgroundSprite;
-				Texture										_bufBatckgroundTexture; // To use as buffer. [Todo]=[To_test] -> SetSmooth
+				RenderWindow										_window;
+				Sprite												_backgroundSprite;
+				Texture												_bufBatckgroundTexture; // To use as buffer. [Todo]=[To_test] -> SetSmooth
 
 		// Collision engine :
 				// [Todo] : CollisionEngine
-				CollisionEngine::Interface *				_collisionEngine = new CollisionEngine::Implem::Linear<CollisionEngine::Algorythms::AABB>();
+				std::unique_ptr<CollisionEngine::Interface>			_collisionEngine = new CollisionEngine::Implem::Linear<CollisionEngine::Algorythms::AABB>();
 
 		// Entities :
-				// EntityManager								_entityManager;
-				T_EntityVector								_entities;
+				// EntityManager										_entityManager;
+				T_EntityVector										_entities;
 
 		// EventsHandler :
-				UserEventsHandler::MapType *				_EventTypeToCB = &(UserEventsHandler::Debugger::GetTypeToCB_Map());
-				UserEventsHandler::RegistrableEventsMapType	_userEventsManager;
-				Events::CooldownManager::Reconductible		_cooldownManager;
-				Events::CooldownManager::ByTicks			_frameEventManager;
+				std::unique_ptr<UserEventsHandler::MapType>			_EventTypeToCB = UserEventsHandler::Debugger::GetTypeToCB_Map();
+				UserEventsHandler::RegistrableEventsMapType			_userEventsManager;
+				Events::CooldownManager::Reconductible				_cooldownManager;
+				Events::CooldownManager::ByTicks					_frameEventManager;
 
 		// Screens
-				std::vector<SceneType*>						_scenes;
-				std::vector<SceneType*>::iterator			_currentSceneIt = _scenes.end();
+				std::vector<std::shared_ptr<SceneType>>				_scenes;
+				std::vector<std::shared_ptr<SceneType>>::iterator	_currentSceneIt = _scenes.end();
 	};
 }
 

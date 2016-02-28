@@ -8,6 +8,7 @@
 # include <functional>
 # include <exception>
 # include <stdexcept>
+# include <memory>
 
 // # include "Game.h"
 
@@ -38,12 +39,13 @@ namespace GGE
 
 		struct Debugger
 		{
-			static MapType & GetTypeToCB_Map(void)
+			static const std::unique_ptr<MapType> GetTypeToCB_Map(void)
 			{
 				std::cout << "[+] Debugger::GetTypeToCB_Map" << std::endl;
-				return _eventTypeToCB_map;
+				return std::make_unique<MapType>(_eventTypeToCB_map);
 			}
 
+		protected:
 			static MapType	_eventTypeToCB_map;
 		};
 
