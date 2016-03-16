@@ -6,9 +6,9 @@
 > For all (including final version), this project use GCL_CPP library (*https://github.com/GuillaumeDua/GCL_CPP*).
 
 ```
-This library aims to be as **flexible** as possible, both statically and dynamically, using hybrid design half-way between Policies (A.Alexandrescu) and Behaviors.
+- This library aims to be as **flexible** as possible, both statically and dynamically, using hybrid design half-way between Policies (A.Alexandrescu) and Behaviors.
 
-This library also aims to be **fast**. Thus, it uses lots of template-metaprogramming mecanisms.
+- This library also aims to be **fast**. Thus, it uses lots of template-metaprogramming mecanisms.
 
-This library also aims to be **easy-to-use**. Thus, many components are black-boxed design.
+- This library also aims to be **easy-to-use**. Thus, many components are black-boxed design.
 ```
