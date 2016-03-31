@@ -145,6 +145,8 @@
     <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Vector.h" />
     <ClInclude Include="CooldownManager.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="GameEditor.h" />
+    <ClInclude Include="GamesImpl\Game1.h" />
     <ClInclude Include="ICollisionEngine.h" />
     <ClInclude Include="IEntity.h" />
     <ClInclude Include="Sprite.h" />

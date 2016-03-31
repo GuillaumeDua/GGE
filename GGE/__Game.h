@@ -33,7 +33,7 @@ namespace GGE
 		// Game() = delete;
 		Game(const size_t TicksPerSec = 60)
 			: _ticksSystem(TicksPerSec)
-			, _window(sf::VideoMode(800, 600, 32), "GEE Rendering")
+			, _window(sf::VideoMode(800, 600, 32), "GEE : Instance rendering")
 		{
 			this->Initialize();
 		}
@@ -124,6 +124,10 @@ namespace GGE
 		Game &												operator+=(const std::shared_ptr<SceneType> & scene)
 		{
 			this->_scenes.push_back(scene);
+
+			if (_scenes.size() == 1)
+				this->setActiveScene(0);
+
 			return *this;
 		}
 		inline std::shared_ptr<SceneType>					operator[](const size_t it)// throw (std::out_of_range)
@@ -134,11 +138,15 @@ namespace GGE
 		{
 			return _scenes;
 		}
-		void												setActiveScene(const size_t i)
+		void												setActiveScene(const size_t index)
 		{
 			this->_currentSceneIt = _scenes.begin();
-			std::advance(_currentSceneIt, i);
+			std::advance(_currentSceneIt, index);
 
+			// Load scene entities into game engine
+			_entities = _currentSceneIt->get()->GetContent();
+
+			// Load scene entities into collision engine
 			this->_collisionEngine->Unload();
 			for (auto & entity : _entities)
 				*(this->_collisionEngine) += std::dynamic_pointer_cast<HitBox>(entity);
@@ -280,7 +288,7 @@ namespace GGE
 					const size_t									_TicksToSkip			= 1000 / _TicksPerSec;
 					const size_t									_MaxFameSkip			= DEFAULT_FRAME_SKIP;
 					
-		}							_ticksSystem;
+		}									_ticksSystem;
 
 		// Rendering :
 				// [Todo] : Use GGE::Screenhere

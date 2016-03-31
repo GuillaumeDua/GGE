@@ -3,10 +3,20 @@
 #include <GCL_CPP/Exception.h>
 #include <GCL_CPP/Preprocessor.h>
 #include <GCL_CPP/Notification.h>
+
 #include "__Game.h"
+#include "GameEditor.h"
+
 
 int	main(int ac, char *av[])
 {
+	{
+		GGE::Editor::Test();
+
+		system("pause");
+		return 0;
+	}
+
 	GGE::Game game;
 
 	try
@@ -15,13 +25,12 @@ int	main(int ac, char *av[])
 
 		std::shared_ptr<Sonic> sonic = std::make_shared<Sonic>(std::move(std::make_pair(400.f, 400.f)));
 		sonic->ForceCurrentStatus(Sonic::Status::Walking);
-		game.Entities() += sonic;
 
 		std::shared_ptr<Sonic> sonicIA = std::make_shared<Sonic>(std::move(std::make_pair(200.f, 300.f)));
 		sonicIA->ForceCurrentStatus(Sonic::Status::Walking);
-		game.Entities() += sonicIA;
+		//game.Entities() += sonicIA; // useless
 
-		sonicIA->on(CollisionEngine::Events::CollisionEvent) +=
+		sonicIA->on(GGE::CollisionEngine::Events::CollisionEvent) +=
 		{
 			[&sonicIA]() // HitBox
 			{
@@ -35,13 +44,13 @@ int	main(int ac, char *av[])
 
 		game += std::make_shared<GGE::Game::SceneType>(
 			"SPRITES/bg_blue.png",
-			std::initializer_list<std::shared_ptr<IEntity>>{
-				sonic
-				, sonicIA
-			}
-		);
+			std::initializer_list < std::shared_ptr<IEntity> >
+		{
+			sonic
+			, sonicIA
+		});
 
-		game.setActiveScene(0);
+		// game.setActiveScene(0); // Automatic
 
 // 1 : Controlable
 		// [Fun] : Funny event registering system test
