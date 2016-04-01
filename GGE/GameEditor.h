@@ -23,6 +23,17 @@ namespace GGE
 
 			struct Theme
 			{
+				const std::string DefaultFontPath = "Fonts/Digital System.ttf";
+
+				explicit Theme()
+				{
+					if (!_font.loadFromFile(DefaultFontPath))
+						throw std::runtime_error("Cannot load default font : [" + DefaultFontPath + "]");
+				}
+				Theme(const Theme&) = default;
+				Theme(Theme &&) = delete;
+
+				sf::Font	_font;
 				sf::Color	_backgroundColor = {100, 150, 200};
 				sf::Color	_textColor = sf::Color::White;
 				sf::Color	_borderColor = sf::Color::Black;
@@ -37,6 +48,7 @@ namespace GGE
 				}
 				const Theme & operator >> (sf::Text & text) const
 				{
+					text.setFont(_font);
 					text.setColor(_textColor);
 					return *this;
 				}
@@ -57,7 +69,7 @@ namespace GGE
 			{
 				*this << _theme;
 
-				std::cout << "Button addr : 0x" << this << std::endl;
+				_textGraphicalElem.setString(text);
 
 				if (onClickCB)
 					this->on(Button::Event::Clicked) += std::move(onClickCB);
@@ -67,12 +79,14 @@ namespace GGE
 					_theme._backgroundColor.r += 20;
 					_theme._backgroundColor.g += 20;
 					_theme._backgroundColor.b += 20;
+					_shape.setFillColor(_theme._backgroundColor);
 				});
 				this->on(Button::Event::MouseOut) += std::move([this]() mutable
 				{
 					_theme._backgroundColor.r -= 20;
 					_theme._backgroundColor.g -= 20;
 					_theme._backgroundColor.b -= 20;
+					_shape.setFillColor(_theme._backgroundColor);
 				});
 
 				gameInstance.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseButtonPressed, [&, this](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
@@ -88,15 +102,21 @@ namespace GGE
 				}));
 				gameInstance.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseMoved, [&, this](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
 				{
-					HitBox cursorHB{ { static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y) }, { 1, 1 } };
+					HitBox cursorHB{ { static_cast<float>(event.mouseMove.x), static_cast<float>(event.mouseMove.y) }, { 1, 1 } };
 
 					if (GGE::CollisionEngine::Algorythms::AABB::IsCollision(cursorHB, *this))
 					{
 						if (!this->IsMouseOver())
+						{
+							this->_isMouseOver = true;
 							this->Notify(Button::Event::MouseOver);
+						}
 					}
 					else if (this->IsMouseOver())
+					{
+						this->_isMouseOver = false;
 						this->Notify(Button::Event::MouseOut);
+					}
 
 					return GGE::UserEventsHandler::RegisteredCBReturn::OK;
 				}));
@@ -110,6 +130,7 @@ namespace GGE
 
 			void								Draw(sf::RenderWindow & renderWindow)
 			{
+				
 				_textGraphicalElem.setPosition(_position.first, _position.second);
 				_shape.setPosition(_position.first, _position.second);
 
@@ -213,12 +234,6 @@ namespace GGE
 				HitBox{ { 200.f, 300.f }, { 200, 100 } }
 				, std::string("TextBox 1")
 			);
-
-			std::cout << "Button  1 addr : 0x" << button1.get() << std::endl;
-			std::cout << "Button  2 addr : 0x" << button2.get() << std::endl;
-			std::cout << "TextBox 1 addr : 0x" << textBox1.get() << std::endl;
-
-			textBox1->on(TextInputBox::Event::TextChanged) += [&textBox1](){ std::cout << "TextBox 1 : TextChanged to : [" << textBox1->GetText() << ']' << std::endl; };
 
 			gameInstance += std::make_shared<GGE::Game::SceneType>(
 				"SPRITES/bg_blue.png",
