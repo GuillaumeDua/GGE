@@ -31,7 +31,6 @@ const Sonic_EntityDescriptor::Behavior Sonic_EntityDescriptor::_behavior =
 				entity.ForceCurrentStatus(Sonic_EntityDescriptor::Status::Walking);
 				//delete &entity;
 
-			// std::cout << "Sonic_EntityDescriptor::_behavior called !" << std::endl;
 			return true;
 		}
 	}

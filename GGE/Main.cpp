@@ -28,7 +28,7 @@ int	main(int ac, char *av[])
 
 		std::shared_ptr<Sonic> sonicIA = std::make_shared<Sonic>(std::move(std::make_pair(200.f, 300.f)));
 		sonicIA->ForceCurrentStatus(Sonic::Status::Walking);
-		//game.Entities() += sonicIA; // useless
+		// [todo] : game.Entities() += sonicIA; // useless | to_fix
 
 		sonicIA->on(GGE::CollisionEngine::Events::CollisionEvent) +=
 		{

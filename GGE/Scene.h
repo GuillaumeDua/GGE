@@ -24,17 +24,15 @@ namespace GGE
 		{
 			this->LoadBackground(backgroundTexturePath);
 		}
-		/*template <typename T_Drawable_Param>
-		Scene(const std::string & backgroundTexturePath, std::initializer_list<std::shared_ptr<T_Drawable_Param>> & DrawableVectorType)
-		{
-			for (auto & elem : DrawableVectorType)
-				_drawables.push_back(std::static_pointer_cast<T_DrawableType>(elem));
-			this->LoadBackground(backgroundTexturePath);
-		}*/
 
 		~Scene() = default;
 
-		inline Scene &				operator+=(const std::shared_ptr<T_DrawableType> & drawable)
+		inline Scene &				operator+=(const DrawableVectorType & drawable)
+		{
+			this->_drawables.emplace_back(drawable);
+			return *this;
+		}
+		inline Scene &				operator+=(T_DrawableType & drawable)
 		{
 			this->_drawables.emplace_back(drawable);
 			return *this;

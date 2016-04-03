@@ -11,7 +11,6 @@
 
 using namespace GGE;
 
-//std::map<const sf::Event::EventType, EventHandler::CB>
 UserEventsHandler::MapType	UserEventsHandler::Debugger::_eventTypeToCB_map =
 {
 	{

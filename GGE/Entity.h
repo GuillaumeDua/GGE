@@ -134,7 +134,7 @@ public:
 	virtual ~Entity(){}
 
 	// [IEntity]
-	void									Draw(sf::RenderWindow & renderWindow)
+	void									Draw(sf::RenderWindow & renderWindow) override
 	{
 		sf::Sprite & sprite = *(this->_animations.at(this->_currentStatus).GetCurrent());
 		sprite.setPosition(_position.first + (_size.first / 2), _position.second + (_size.second / 2));
@@ -150,7 +150,7 @@ public:
 		);
 		renderWindow.draw(_debugBox);
 	}
-	bool									Behave(void)
+	bool									Behave(void) override
 	{
 		// [Move]
 		if (this->_movement.IsActive())

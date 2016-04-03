@@ -39,10 +39,7 @@ namespace GGE
 		}
 		Game(const Game &)	= delete;
 		Game(const Game &&) = delete;
-		~Game()
-		{
-			// std::for_each(_scenes.begin(), _scenes.end(), [&](SceneType * elem){ delete elem; });
-		}
+		~Game(){}
 
 		void												Initialize(void)
 		{

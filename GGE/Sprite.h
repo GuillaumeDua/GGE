@@ -79,6 +79,14 @@ namespace GGE
 			{
 				return _spriteDimension;
 			}
+			inline const std::pair<int, int> &		GetDimension(void) const
+			{
+				return _dimension;
+			}
+			inline const std::pair<int, int> &		GetQty(void) const
+			{
+				return _qty;
+			}
 
 		protected:
 			std::vector<sf::Sprite>					_sprites;
@@ -86,7 +94,7 @@ namespace GGE
 			const std::string						_texture_path;
 			const std::pair<int, int>				_dimension;
 			const std::pair<int, int>				_qty;
-			const std::pair<int, int>						_spriteDimension;
+			const std::pair<int, int>				_spriteDimension;
 			bool									_isValid;
 			sf::Texture								_texture;
 		};
@@ -168,7 +176,7 @@ namespace GGE
 			void											Load(const Sheet & spriteSheet, const size_t qty, const size_t offset)
 			{
 				assert(offset + qty <= spriteSheet.GetContent().size());
-				for (size_t it = offset; it < qty; ++it)
+				for (size_t it = offset; it < (qty + offset); ++it)
 				{
 					this->_sprites.push_back(spriteSheet.GetContent().at(it));
 					this->_sprites.back().setOrigin(

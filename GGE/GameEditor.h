@@ -34,7 +34,7 @@ namespace GGE
 				Theme(Theme &&) = delete;
 
 				sf::Font	_font;
-				sf::Color	_backgroundColor = {100, 150, 200};
+				sf::Color	_backgroundColor = { 100, 150, 200 };
 				sf::Color	_textColor = sf::Color::White;
 				sf::Color	_borderColor = sf::Color::Black;
 				float		_borderThickness = 3;
@@ -130,8 +130,8 @@ namespace GGE
 
 			void								Draw(sf::RenderWindow & renderWindow)
 			{
-				
-				_textGraphicalElem.setPosition(_position.first, _position.second);
+
+				_textGraphicalElem.setPosition(_position.first + 10.f, _position.second);
 				_shape.setPosition(_position.first, _position.second);
 
 				renderWindow.draw(_shape);
@@ -162,6 +162,7 @@ namespace GGE
 			sf::RectangleShape					_shape;
 			sf::Text							_textGraphicalElem;
 		};
+
 		Button::Theme Button::DefaultTheme;
 
 		const std::string Button::Event::Clicked = "onClicked";
@@ -216,35 +217,159 @@ namespace GGE
 		};
 
 		const std::string TextInputBox::Event::TextChanged = "onTextChanged";
-	
-		void	Test(void)
+
+
+		struct DynamicAnimationsStack
+			: public IEntity	// Draw
+			, public HitBox
 		{
-			std::shared_ptr<Button> button1 = std::make_shared<Button>(
-				HitBox{ { 50.f, 100.f }, { 200, 100 } }
-				, "button 1"
-				, [](){ std::cout << "Button 1 clicked" << std::endl; }
-			);
-			std::shared_ptr<Button> button2 = std::make_shared<Button>(
-				HitBox{ { 350.f, 100.f }, { 200, 100 } }
-				, "button 2"
-				, [](){ std::cout << "Button 2 clicked" << std::endl; }
-			);
+			explicit DynamicAnimationsStack(const HitBox::PositionType && pos, const HitBox::SizeType && dimMax)
+				: HitBox(pos, dimMax)
+				, _drawAdapter(pos, dimMax, { 0, 0 })
+			{}
 
-			std::shared_ptr<TextInputBox> textBox1 = std::make_shared<TextInputBox>(
-				HitBox{ { 200.f, 300.f }, { 200, 100 } }
-				, std::string("TextBox 1")
-			);
+			std::shared_ptr<GGE::SPRITE::Sheet> _spriteSheet = nullptr;
+			std::vector<GGE::SPRITE::Serie>	_spritesSeries;
 
-			gameInstance += std::make_shared<GGE::Game::SceneType>(
+			void	Reload(void)
+			{
+				if (_spriteSheet == nullptr)
+					throw std::runtime_error("DynamicAnimationsStack::ReloadAnimations : NullPtr");
+
+				_spritesSeries.clear();
+
+				for (size_t it = 0; it < _spriteSheet->GetQty().second; ++it)
+				{
+					GGE::SPRITE::Serie serie{ *_spriteSheet, static_cast<size_t>(_spriteSheet->GetQty().first), it * (_spriteSheet->GetQty().first) };
+					_spritesSeries.emplace_back(serie);
+				}
+				_drawAdapter._spriteSize = _spriteSheet->GetSpriteDimension();
+				// [todo] : Remove blank tiles
+			}
+			void	Draw(sf::RenderWindow & renderWindow) override
+			{
+				if (_spriteSheet == nullptr)
+					return;
+
+				_drawAdapter.ResetIt();
+
+				for (auto & spriteSerie : _spritesSeries)
+				{
+					auto & sprite = *(spriteSerie.GetCurrent());
+					_drawAdapter.Draw(sprite, renderWindow);
+				}
+			}
+			bool	Behave(void) override
+			{
+				for (auto & spriteSerie : _spritesSeries)
+					++spriteSerie;
+				// check reloadRequested event
+				return true;
+			}
+		protected:
+			struct SpriteSheetDrawingAdapter
+			{
+				explicit SpriteSheetDrawingAdapter(const HitBox::PositionType & pos, const HitBox::SizeType & size, const HitBox::SizeType & spriteSize)
+					: _position(pos)
+					, _size(size)
+					, _spriteSize(spriteSize)
+				{}
+
+				void					Draw(sf::Sprite & sprite, sf::RenderWindow & renderWindow)
+				{
+					sprite.setPosition(_position.first + _spriteSize.first * _drawnIt++, _position.second);
+					renderWindow.draw(sprite);
+				}
+				inline void				ResetIt(void)
+				{
+					_drawnIt = 0;
+				}
+
+				unsigned int			_drawnIt = 0;
+				HitBox::PositionType	_position;
+				HitBox::SizeType		_size;
+				HitBox::SizeType		_spriteSize;
+			}	_drawAdapter;
+		};
+
+		void	AnimationEditionTool(void)
+		{
+			std::shared_ptr<TextInputBox> txtBx_spriteSheetPath = std::make_shared<TextInputBox>(
+				HitBox{ { 50.f, 50.f }, { 600, 50 } }
+				, std::string("C:/DEV/PROJECTS/GGE/GGE/SPRITES/GusGameOfLife.bmp")
+				);
+
+			GCL::Vector<std::shared_ptr<TextInputBox>> array_txtBx_DimQty =
+			{
+				std::make_shared<TextInputBox>(
+					HitBox{ { 50.f, 100.f }, { 50, 50 } }
+					, std::string("500")
+				),
+				std::make_shared<TextInputBox>(
+					HitBox{ { 100.f, 100.f }, { 50, 50 } }
+					, std::string("500")
+				),
+				std::make_shared<TextInputBox>(
+					HitBox{ { 150.f, 100.f }, { 50, 50 } }
+					, std::string("10")
+				),
+				std::make_shared<TextInputBox>(
+					HitBox{ { 200.f, 100.f }, { 50, 50 } }
+					, std::string("10")
+				)
+			};
+
+			std::shared_ptr<DynamicAnimationsStack> das = std::make_shared<DynamicAnimationsStack>(DynamicAnimationsStack{ { 50.f, 200.f }, { 500, 500 } });
+
+			std::shared_ptr<Button> btn_load = std::make_shared<Button>(
+				HitBox{ { 660.f, 50.f }, { 100, 50 } }
+				, "Load"
+				, [&txtBx_spriteSheetPath, &array_txtBx_DimQty, &das]()
+			{ 
+				std::cout << "Loading : [" << txtBx_spriteSheetPath->GetText() << "]" << std::endl; 
+
+				auto dim = std::make_pair(std::stoi(array_txtBx_DimQty.at(0)->GetText()), std::stoi(array_txtBx_DimQty.at(1)->GetText()));
+				auto qty = std::make_pair(std::stoi(array_txtBx_DimQty.at(2)->GetText()), std::stoi(array_txtBx_DimQty.at(3)->GetText()));
+
+				auto ptr = new GGE::SPRITE::Sheet(
+					txtBx_spriteSheetPath->GetText()
+					, std::move(dim)
+					, std::move(qty)
+					);
+				das->_spriteSheet.reset(ptr);
+				das->Reload();
+			});
+
+
+			auto scene = std::make_shared<GGE::Game::SceneType>(
 				"SPRITES/bg_blue.png",
 				std::initializer_list < std::shared_ptr<IEntity> >
 			{
-				button1
-				, button2
-				, textBox1
+				txtBx_spriteSheetPath
+					, btn_load
+					, std::static_pointer_cast<IEntity>(das)
 			});
+			for (auto & elem : array_txtBx_DimQty)
+				scene->operator+=(std::static_pointer_cast<IEntity>(elem));
+			gameInstance += scene;
 
 			gameInstance.Start();
+		}
+
+		void	Test(void)
+		{
+			try
+			{
+				AnimationEditionTool();
+			}
+			catch (const std::exception & ex)
+			{
+				std::cerr << "[ERROR] : STD Exception catch : [" << ex.what() << "]" << std::endl;
+			}
+			catch (...)
+			{
+				std::cerr << "[FATAL_ERROR] : Unknown element catch" << std::endl;
+			}
 		}
 
 	}
