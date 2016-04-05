@@ -128,6 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CollisionEngine.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EventHandler.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -137,7 +138,6 @@
     <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Log.h" />
     <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Maths.h" />
     <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Notification.h" />
-    <ClInclude Include="..\..\GCL_CPP\GCL_CPP\ObjBinding.h" />
     <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Preprocessor.h" />
     <ClInclude Include="..\..\GCL_CPP\GCL_CPP\SelfUpdate.h" />
     <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Task.h" />
@@ -147,7 +147,7 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="GameEditor.h" />
     <ClInclude Include="GamesImpl\Game1.h" />
-    <ClInclude Include="ICollisionEngine.h" />
+    <ClInclude Include="CollisionEngine.h" />
     <ClInclude Include="IEntity.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="__Game.h" />

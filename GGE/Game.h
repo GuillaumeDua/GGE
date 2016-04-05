@@ -17,7 +17,7 @@
 # include "Scene.h"
 # include "EventHandler.h"
 # include "CooldownManager.h"
-# include "ICollisionEngine.h"
+# include "CollisionEngine.h"
 
 // Window::SetFramerateLimit => vertical sync ?
 // screenshots => sf::Image Scren = App.Capture()
@@ -25,22 +25,22 @@
 
 namespace GGE
 {
-	struct EmptyEventHolder {}; // Error -> Invalid event-holder
-	// template <typename EventHolder = EmptyEventHolder> class Game
 	class Game final	//	[Todo] : Replace final by a game-to-game inheritance (e.g final logic into a pure virtual [?])
 	{
 	public:
-		// Game() = delete;
-		Game(const size_t TicksPerSec = 60)
+		
+		explicit Game(const size_t TicksPerSec = 60)
 			: _ticksSystem(TicksPerSec)
 			, _window(sf::VideoMode(800, 600, 32), "GEE : Instance rendering")
 		{
 			this->Initialize();
 		}
+		// Game() = delete;
 		Game(const Game &)	= delete;
 		Game(const Game &&) = delete;
 		~Game(){}
 
+		// [Todo] : Move each routine to thread [?] / async event pool
 		void												Initialize(void)
 		{
 			// _window.setFramerateLimit

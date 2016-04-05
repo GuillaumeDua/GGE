@@ -2,7 +2,7 @@
 
 #include <GCL_CPP/Exception.h>
 #include <GCL_CPP/Preprocessor.h>
-#include <GCL_CPP/Notification.h>
+#include <GCL_CPP/EventHandler.h>
 
 #include "__Game.h"
 #include "GameEditor.h"
@@ -30,7 +30,7 @@ int	main(int ac, char *av[])
 		sonicIA->ForceCurrentStatus(Sonic::Status::Walking);
 		// [todo] : game.Entities() += sonicIA; // useless | to_fix
 
-		sonicIA->on(GGE::CollisionEngine::Events::CollisionEvent) +=
+		sonicIA->on(GGE::CollisionEngine::Event::Collision) +=
 		{
 			[&sonicIA]() // HitBox
 			{

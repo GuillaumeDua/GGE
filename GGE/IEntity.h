@@ -3,12 +3,11 @@
 
 # include <map>
 # include <SFML/Graphics/RenderWindow.hpp>
-# include <GCL_CPP/Notification.h>
-# include "EntityEvent.h"
+# include <GCL_CPP/EventHandler.h>
 
 
 struct HitBox
-	: public GCL::Notification::Notifiable<>
+	: public GCL::Events::EventHandler<>
 {
 	using PositionType = std::pair < float, float >;
 	using SizeType = std::pair < int, int >;

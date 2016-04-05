@@ -1,11 +1,12 @@
-#ifndef __COLLISION_ENGINE__
-# define __COLLISION_ENGINE__
+#ifndef COLLISION_ENGINE__
+# define COLLISION_ENGINE__
 
 # include "IEntity.h"
+# include <GCL_CPP/Vector.h>
 # include <queue>
 # include <vector>
-# include <GCL_CPP/Vector.h>
-# include "EntityEvent.h"
+# include <memory>
+
 
 namespace GGE
 {
@@ -27,10 +28,10 @@ namespace GGE
 			};
 		}
 
-		namespace Events
+		struct Event
 		{
-			const T_EntityNotifiable<>::T_EventID CollisionEvent = "Collision detected";
-		}
+			static const std::string Collision;
+		};
 
 		struct Interface
 		{
@@ -92,8 +93,8 @@ namespace GGE
 					for (auto & elem : _entities)
 						if (elem->HasCollisions())
 						{
-						elem->TriggerEvent(Events::CollisionEvent);
-						elem->ClearCollisions();
+							elem->TriggerEvent(Event::Collision);
+							elem->ClearCollisions();
 						}
 				}
 
@@ -156,4 +157,4 @@ namespace GGE
 	}
 }
 
-#endif // __COLLISION_ENGINE__
+#endif // COLLISION_ENGINE__
