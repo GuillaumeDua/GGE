@@ -4,7 +4,7 @@
 #include <GCL_CPP/Preprocessor.h>
 #include <GCL_CPP/EventHandler.h>
 
-#include "__Game.h"
+#include "Game.h"
 #include "GameEditor.h"
 
 

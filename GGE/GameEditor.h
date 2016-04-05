@@ -1,7 +1,7 @@
 #ifndef __GGE_EDITOR__
 # define __GGE_EDITOR__
 
-#include "./__Game.h"
+#include "Game.h"
 #include <array>
 #include <cstddef>
 
