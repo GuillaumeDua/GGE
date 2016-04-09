@@ -295,14 +295,14 @@ namespace GGE
 
 		// Collision engine :
 				// [Todo] : CollisionEngine
-				std::unique_ptr<CollisionEngine::Interface>			_collisionEngine = new CollisionEngine::Implem::Linear<CollisionEngine::Algorythms::AABB>();
+				std::unique_ptr<CollisionEngine::Interface>			_collisionEngine = std::make_unique<CollisionEngine::Implem::Linear<CollisionEngine::Algorythms::AABB>>();
 
 		// Entities :
 				// EntityManager										_entityManager;
 				T_EntityVector										_entities;
 
 		// EventsHandler :
-				std::unique_ptr<UserEventsHandler::MapType>			_EventTypeToCB = UserEventsHandler::Debugger::GetTypeToCB_Map();
+				std::shared_ptr<UserEventsHandler::MapType>			_EventTypeToCB = UserEventsHandler::Debugger::GetTypeToCB_Map();
 				UserEventsHandler::RegistrableEventsMapType			_userEventsManager;
 				Events::CooldownManager::Reconductible				_cooldownManager;
 				Events::CooldownManager::ByTicks					_frameEventManager;

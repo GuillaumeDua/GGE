@@ -11,7 +11,7 @@
 
 using namespace GGE;
 
-UserEventsHandler::MapType	UserEventsHandler::Debugger::_eventTypeToCB_map =
+std::shared_ptr<UserEventsHandler::MapType>	UserEventsHandler::Debugger::_eventTypeToCB_map = std::make_shared<UserEventsHandler::MapType>(UserEventsHandler::MapType
 {
 	{
 		sf::Event::Closed,
@@ -61,4 +61,4 @@ UserEventsHandler::MapType	UserEventsHandler::Debugger::_eventTypeToCB_map =
 		sf::Event::MouseLeft,
 		[&](const sf::Event & event, UserEventsHandler::GameType & game) -> bool { std::cout << "MouseLeft" << std::endl; return true; }
 	}
-};
+});

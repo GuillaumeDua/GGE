@@ -39,14 +39,14 @@ namespace GGE
 
 		struct Debugger
 		{
-			static const std::unique_ptr<MapType> GetTypeToCB_Map(void)
+			static const std::shared_ptr<MapType> GetTypeToCB_Map(void)
 			{
 				std::cout << "[+] Debugger::GetTypeToCB_Map" << std::endl;
-				return std::make_unique<MapType>(_eventTypeToCB_map);
+				return _eventTypeToCB_map;
 			}
 
 		protected:
-			static MapType	_eventTypeToCB_map;
+            static std::shared_ptr<MapType>	_eventTypeToCB_map;
 		};
 
 		enum RegisteredCBReturn
