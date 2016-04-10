@@ -10,7 +10,11 @@ namespace GGE
 	// @todo : Absract for Button + TextInputBoxm such as "GuiElement"
 	namespace Editor
 	{
-		static GGE::Game gameInstance;
+        GGE::Game & gameInstance()
+        {
+            static GGE::Game _gameInstance;
+            return _gameInstance;
+        }
 
 		struct Button : public IEntity, public HitBox
 		{
@@ -89,7 +93,7 @@ namespace GGE
 					_shape.setFillColor(_theme._backgroundColor);
 				});
 
-				gameInstance.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseButtonPressed, [&, this](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
+				gameInstance().GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseButtonPressed, [&, this](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
 				{
 					HitBox cursorHB{ { static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y) }, { 1, 1 } };
 
@@ -100,7 +104,7 @@ namespace GGE
 
 					return GGE::UserEventsHandler::RegisteredCBReturn::OK;
 				}));
-				gameInstance.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseMoved, [&, this](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
+				gameInstance().GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseMoved, [&, this](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
 				{
 					HitBox cursorHB{ { static_cast<float>(event.mouseMove.x), static_cast<float>(event.mouseMove.y) }, { 1, 1 } };
 
@@ -179,7 +183,7 @@ namespace GGE
 			explicit TextInputBox(const HitBox & hb, const std::string & text)
 				: Button(hb, text)
 			{
-				gameInstance.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseButtonPressed, [&, this](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
+				gameInstance().GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::MouseButtonPressed, [&, this](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
 				{
 					HitBox cursorHB{ { static_cast<float>(event.mouseButton.x), static_cast<float>(event.mouseButton.y) }, { 1, 1 } };
 
@@ -187,7 +191,7 @@ namespace GGE
 
 					return GGE::UserEventsHandler::RegisteredCBReturn::OK;
 				}));
-				gameInstance.GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::TextEntered, [&, this](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
+				gameInstance().GetEventRegisteringSytem().emplace(std::make_pair(sf::Event::TextEntered, [&, this](const sf::Event & event) mutable -> GGE::UserEventsHandler::RegisteredCBReturn
 				{
 					if (this->IsFocusAquiered())
 					{
@@ -351,9 +355,9 @@ namespace GGE
 			});
 			for (auto & elem : array_txtBx_DimQty)
 				scene->operator+=(std::static_pointer_cast<IEntity>(elem));
-			gameInstance += scene;
+			gameInstance() += scene;
 
-			gameInstance.Start();
+			gameInstance().Start();
 		}
 
 		void	Test(void)

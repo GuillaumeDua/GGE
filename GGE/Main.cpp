@@ -10,12 +10,12 @@
 
 int	main(int ac, char *av[])
 {
-	{
+	/*{
 		GGE::Editor::Test();
 
 		system("pause");
 		return 0;
-	}
+	}*/
 
 	GGE::Game game;
 
