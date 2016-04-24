@@ -1,7 +1,7 @@
 #include "EventHandler.h"
 #include "RENDERING\Types.h"
 
-# include "Game.h"
+# include "GameEngine.h"
 
 ///////////////////////////////////////
 //

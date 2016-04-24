@@ -51,9 +51,9 @@ namespace GGE
 			std::for_each(_drawables.begin(), _drawables.end(), [&](T_DrawableType drawable){ drawable->Draw(*_window); });
 			_window->display();
 		}
-		static void					BindWindow(RenderWindow	* renderWindows)
+		static void					BindWindow(RenderWindow	& renderWindows)
 		{
-			_window = renderWindows;
+			_window = &renderWindows;
 		}
 
 	protected:

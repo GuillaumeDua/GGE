@@ -17,18 +17,19 @@
 # include "IEntity.h"
 # include "Sprite.h"
 
-template <typename EntityDescriptor>
+template <typename T_EntityTrait>
 class Entity
 	: public IEntity
 	, public HitBox
 	//, Garbageable< Entity< EntityDescriptor > >
 {
 public:
-	using ThisType = typename Entity < EntityDescriptor >;
+    using Trait = T_EntityTrait;
+	using ThisType = typename Entity < T_EntityTrait >;
 
-	using Status = typename EntityDescriptor::Status;
-	using Behavior = typename EntityDescriptor::Behavior;
-	using Animation = typename EntityDescriptor::Animation;
+	using Status = typename T_EntityTrait::Status;
+	using Behavior = typename T_EntityTrait::Behavior;
+	using Animation = typename T_EntityTrait::Animation;
 
 	//enum class DirectionType : char
 	//{
@@ -125,10 +126,10 @@ public:
 	};
 
 	Entity(const std::pair<float, float> & pos)
-		: _currentStatus(EntityDescriptor::Default)
-		, HitBox(pos, EntityDescriptor::_size)
-		, _behavior(EntityDescriptor::_behavior)
-		, _animations(EntityDescriptor::_animation)
+		: _currentStatus(T_EntityTrait::Default)
+		, HitBox(pos, T_EntityTrait::_size)
+		, _behavior(T_EntityTrait::_behavior)
+		, _animations(T_EntityTrait::_animation)
 		, _speed(15.0f)
 	{}
 	virtual ~Entity(){}
@@ -159,15 +160,6 @@ public:
 		++(this->_animations.at(this->_currentStatus));
 		return this->_behavior.at(this->_currentStatus)(*this);
 	}
-	// [HitBox]
-	//void									OnCollision(void)
-	//{
-	//	for (auto collided_hitbox : _collisions)
-	//		for (auto & onCollisonEventCB : _onCollsionEventsCB)
-	//			onCollisonEventCB(collided_hitbox);
-	//	
-	//	this->_collisions.clear();
-	//}
 	// [Status]
 	inline const Status						GetCurrentStatus(void) const
 	{
@@ -182,14 +174,6 @@ public:
 	{
 		this->_rotation = value;
 	}
-	//inline void								SetColor(const sf::Color & value)
-	//{
-	//	this->_spriteModifier._color = value;
-	//}
-	//inline const sf::Color &				GetColor(void) const
-	//{
-	//	return this->_spriteModifier._color;
-	//}
 	inline void								SetMovement(const PositionType & target)
 	{
 		PositionType applicatedDestination = target;
@@ -255,8 +239,10 @@ protected:
 };
 
 //
+//	[Todo] : Move to test
 //	[Another file] : Sample of implementation
 //
+
 
 struct Sonic_EntityDescriptor
 {

@@ -131,6 +131,7 @@
     <ClCompile Include="CollisionEngine.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EventHandler.cpp" />
+    <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -145,11 +146,12 @@
     <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Vector.h" />
     <ClInclude Include="CooldownManager.h" />
     <ClInclude Include="Entity.h" />
-    <ClInclude Include="Game.h" />
+    <ClInclude Include="GameEngine.h" />
     <ClInclude Include="GameEditor.h" />
     <ClInclude Include="GamesImpl\Game1.h" />
     <ClInclude Include="CollisionEngine.h" />
     <ClInclude Include="IEntity.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="Sprite.h" />
   </ItemGroup>
   <ItemGroup>

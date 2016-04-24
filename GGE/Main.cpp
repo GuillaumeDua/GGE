@@ -4,20 +4,20 @@
 #include <GCL_CPP/Preprocessor.h>
 #include <GCL_CPP/EventHandler.h>
 
-#include "Game.h"
+#include "GameEngine.h"
 #include "GameEditor.h"
 
 
 int	main(int ac, char *av[])
 {
-	/*{
-		GGE::Editor::Test();
+	//{
+	//	GGE::Editor::Test();
 
-		system("pause");
-		return 0;
-	}*/
+	//	system("pause");
+	//	return 0;
+	//}
 
-	GGE::Game game;
+	GGE::GameEngine game(GGE::GameEngine::Configuration::_Default);
 
 	try
 	{
@@ -42,7 +42,7 @@ int	main(int ac, char *av[])
 			}
 		};
 
-		game += std::make_shared<GGE::Game::SceneType>(
+		game += std::make_shared<GGE::GameEngine::SceneType>(
 			"SPRITES/bg_blue.png",
 			std::initializer_list < std::shared_ptr<IEntity> >
 		{

@@ -1,7 +1,7 @@
 #ifndef __GGE_EDITOR__
 # define __GGE_EDITOR__
 
-#include "Game.h"
+#include "GameEngine.h"
 #include <array>
 #include <cstddef>
 
@@ -10,9 +10,9 @@ namespace GGE
 	// @todo : Absract for Button + TextInputBoxm such as "GuiElement"
 	namespace Editor
 	{
-        GGE::Game & gameInstance()
+        GGE::GameEngine & gameInstance()
         {
-            static GGE::Game _gameInstance;
+            static GGE::GameEngine _gameInstance(GGE::GameEngine::Configuration::_Default);
             return _gameInstance;
         }
 
@@ -143,7 +143,7 @@ namespace GGE
 			}
 			bool								Behave(void)
 			{
-				this->ResolvePendingNotifications();
+				this->TriggerPendingEvents();
 				return true;
 			}
 
@@ -345,7 +345,7 @@ namespace GGE
 			});
 
 
-			auto scene = std::make_shared<GGE::Game::SceneType>(
+			auto scene = std::make_shared<GGE::GameEngine::SceneType>(
 				"SPRITES/bg_blue.png",
 				std::initializer_list < std::shared_ptr<IEntity> >
 			{

@@ -8,6 +8,8 @@
 # include <functional>
 # include <map>
 # include <memory>
+# include <future>
+# include <chrono>
 
 # include <GCL_CPP/Exception.h>
 # include <GCL_CPP/Vector.h>
@@ -25,50 +27,140 @@
 
 namespace GGE
 {
-	class Game final	//	[Todo] : Replace final by a game-to-game inheritance (e.g final logic into a pure virtual [?])
+	class GameEngine final	//	[Todo] : Game object : Game logic wrapper around the engine for convinient end-term game
 	{
 	public:
 		
-		explicit Game(const size_t TicksPerSec = 60)
-			: _ticksSystem(TicksPerSec)
-			, _window(sf::VideoMode(800, 600, 32), "GEE : Instance rendering")
+		struct TicksSystem : GCL::Events::EventHandler<>
 		{
+			struct Event
+			{
+				static const GCL::Events::EventHandler<>::T_EventID FrameDrop;
+			};
+
+			struct Configuration
+			{
+				const float _FPS;
+				const std::vector<GCL::Events::EventHandler<>::T_EventCallback> _onFrameDropEventCallbacks;
+				static Configuration _Default;
+			};
+
+			TicksSystem() = delete;
+			TicksSystem(const Configuration & c/* = Configuration::_default*/)
+				: _FPS(c._FPS)
+			{
+				for (auto & cb : c._onFrameDropEventCallbacks)
+					this->on(Event::FrameDrop) += GCL::Events::EventHandler<>::T_EventCallback(cb);
+				this->Reset();
+			}
+			TicksSystem(const TicksSystem &) = default;
+			TicksSystem & operator=(const TicksSystem &) = delete;
+			~TicksSystem() = default;
+
+			void			Reset()
+			{
+				_diffTimeCt = sf::Time::Zero;
+			}
+			void			Start()
+			{
+				if (_isRunning)
+					throw std::runtime_error("TicksSystem::Start : already running");
+				_isRunning = true;
+
+				assert(_tickCheckerThread.get() == 0x0);
+
+				_tickCheckerThread = std::make_unique<std::thread>([this]()
+				{
+					while (_isRunning)
+					{
+						_fpsCounter = 0;
+						std::this_thread::sleep_for(std::chrono::seconds(1));
+						if (_fpsCounter < _FPS)
+							Notify(TicksSystem::Event::FrameDrop);
+					}
+				});
+				Reset();
+			}
+			void			Stop()
+			{
+				if (!_isRunning)
+					throw std::runtime_error("TicksSystem::Start : not running");
+				_isRunning = false;
+				_tickCheckerThread->join();
+				_tickCheckerThread.reset();
+			}
+			void			ExecuteForPendingTime(const std::function<void(void)> & callback)
+			{
+				sf::Time elaspedTime = _clock.restart();
+				_diffTimeCt += elaspedTime;
+
+				while (_diffTimeCt > _timePerFrame)
+				{
+					++_fpsCounter;
+					_diffTimeCt -= _timePerFrame;
+					callback();
+				}
+			}
+
+			// Frame drop
+			std::atomic<bool>				_isRunning = false;
+			size_t							_fpsCounter;
+			std::unique_ptr<std::thread>	_tickCheckerThread;
+			// Ticks
+			sf::Clock						_clock;
+			sf::Time						_diffTimeCt;
+			const float						_FPS;
+			const sf::Time 					_timePerFrame = sf::seconds(1.f / _FPS);
+			const size_t					_TicksToSkip = 1000 / static_cast<size_t>(_FPS);
+		};
+
+		struct Configuration
+		{
+			TicksSystem::Configuration _tickSystemConfiguration;
+			struct ScreenDim
+			{
+				uint32_t _x;
+				uint32_t _y;
+				uint32_t _modeBit;
+				std::string _name;
+			}	_screenDim;
+
+			static Configuration _Default;
+		};
+
+		explicit GameEngine(const Configuration & c/* = Configuration::_Default*/)
+			: _tickSystem(c._tickSystemConfiguration)
+			, _window(sf::VideoMode(c._screenDim._x, c._screenDim._y, c._screenDim._modeBit), c._screenDim._name)
+		{
+			if (!_window.isOpen())
+				throw std::runtime_error("Fail to open window");
 			this->Initialize();
 		}
-		// Game() = delete;
-		Game(const Game &)	= delete;
-		Game(const Game &&) = delete;
-		~Game(){}
+		GameEngine(void) = delete;
+		GameEngine(const GameEngine &)	= delete;
+		GameEngine(const GameEngine &&) = delete;
+		~GameEngine(){}
 
-		// [Todo] : Move each routine to thread [?] / async event pool
 		void												Initialize(void)
 		{
-			// _window.setFramerateLimit
-			// _window.getView
-			if (!(_window.isOpen()))
-				throw GCL::Exception("[Error] : Rendering window is not open");
-			SceneType::BindWindow(&_window);
+            _currentSceneIt = _scenes.end();
+			SceneType::BindWindow(_window);
 
+			// Entities behavior
+			this->_frameEventManager += {5, [this]() mutable -> bool
+			{
+				for (auto & elem : this->_entities)
+					if (!elem->Behave())
+						throw std::runtime_error("[Error] : Entity failed to behave correctly");
+				return true;  
+			}};
+			// Entities collisions
 			this->_frameEventManager += {5, [this]() mutable -> bool
 			{
 				this->_collisionEngine->Calculate();
 				this->_collisionEngine->ApplyOnCollisionEvents();
 				return true;
 			}};
-			// [Todo]::[Refactoring] : Split entities sprite refresh and behave logics
-			this->_frameEventManager += {5, [this]() mutable -> bool
-			{ 
-				for (auto & elem : this->_entities)
-					if (!elem->Behave())
-						throw std::runtime_error("[Error] : Entity failed to behave correctly");
-				return true;  
-			}};
-			/*this->_frameEventManager += {1, [this]() mutable -> bool
-			{
-				for (auto & elem : this->_entities)
-					elem->Draw(this->_window);
-				return true;
-			}};*/
 		}
 
 		// Run [-> I cld use my own Runnable class]
@@ -76,18 +168,18 @@ namespace GGE
 		{
 			if (this->_IsRunning)
 			{
-				std::cerr << "[Error]::[GGE::Game::Start] : attempting to start a game that is already running" << std::endl;
+				std::cerr << "[Error]::[GGE::GameEngine::Start] : attempting to start a game that is already running" << std::endl;
 				return false;
 			}
 			if (_currentSceneIt == _scenes.end())
 			{
-				std::cerr << "[Error]::[GGE::Game::Start] : attempting to start a game that has no active scene set" << std::endl;
+				std::cerr << "[Error]::[GGE::GameEngine::Start] : attempting to start a game that has no active scene set" << std::endl;
 				return false;
 			}
 
 			this->_IsRunning = true;
 
-			std::cout << "[+] Start ... framerate set at : " << _ticksSystem.FPS << std::endl;
+			std::cout << "[+] Start ... framerate set at : " << _tickSystem._FPS << std::endl;
 			bool ret(true);
 
 			try
@@ -118,7 +210,7 @@ namespace GGE
 		}
 		// Scenes
 		using SceneType = GGE::Scene<IEntity>;
-		Game &												operator+=(const std::shared_ptr<SceneType> & scene)
+		GameEngine &										operator+=(const std::shared_ptr<SceneType> & scene)
 		{
 			this->_scenes.push_back(scene);
 
@@ -234,67 +326,39 @@ namespace GGE
 		{
 			try
 			{
+				// Events
 				this->ManageEvents();
+				// Rendering
 				(*_currentSceneIt)->Draw();
 			}
 			catch (const std::exception & ex)
 			{
-				std::cerr << "[Error]::[GGE::Game::Update] : std::exception catch : [" << ex.what() << ']' << std::endl;
+				std::cerr << "[Error]::[GGE::GameEngine::Update] : std::exception catch : [" << ex.what() << ']' << std::endl;
 			}
 			catch (...)
 			{
-				std::cerr << "[Error]::[GGE::Game::Update] : Unknown exception catch" << std::endl;
+				std::cerr << "[Error]::[GGE::GameEngine::Update] : Unknown exception catch" << std::endl;
 			}
 		}
 		bool												Loop(void)
 		{
-			sf::Clock	clock;
-			sf::Time	diffTimeCt = sf::Time::Zero;
-
+			_tickSystem.Start();
 			while (this->_IsRunning)
 			{
-				sf::Time elaspedTime = clock.restart();
-				diffTimeCt += elaspedTime;
-
-				while (this->_IsRunning && diffTimeCt > _ticksSystem.TimePerFrame)
-				{
-					diffTimeCt -= _ticksSystem.TimePerFrame;
-					this->Update();
-				}
+				_tickSystem.ExecuteForPendingTime([this]() mutable { this->Update(); });
+				_tickSystem.TriggerPendingEvents();
 			}
+			_tickSystem.Stop();
 			return true;
 		}
 
 		// Ticks :
-		// [Todo] : Refactoring
-		struct TicksSystem
-		{
-			TicksSystem(const size_t TicksPerSec)
-				: _TicksPerSec(TicksPerSec)
-			{}
-			TicksSystem(const TicksSystem &) = default;
-			TicksSystem & operator=(const TicksSystem &) = delete;
-			~TicksSystem() = default;
-
-			const float												FPS = 60.f;
-			const sf::Time 											TimePerFrame = sf::seconds(1.f / FPS);
-
-			static	const size_t									DEFAULT_TICKS_PER_SEC	= 50;
-			static	const size_t									DEFAULT_FRAME_SKIP		= 5;
-					const size_t									_TicksPerSec			= DEFAULT_TICKS_PER_SEC;
-					const size_t									_TicksToSkip			= 1000 / _TicksPerSec;
-					const size_t									_MaxFameSkip			= DEFAULT_FRAME_SKIP;
-					
-		}									_ticksSystem;
+		TicksSystem													_tickSystem;
 
 		// Rendering :
-				// [Todo] : Use GGE::Screenhere
-				RenderWindow										_window;
-				Sprite												_backgroundSprite;
-				Texture												_bufBatckgroundTexture; // To use as buffer. [Todo]=[To_test] -> SetSmooth
+		RenderWindow												_window;
 
 		// Collision engine :
-				// [Todo] : CollisionEngine
 				std::unique_ptr<CollisionEngine::Interface>			_collisionEngine = std::make_unique<CollisionEngine::Implem::Linear<CollisionEngine::Algorythms::AABB>>();
 
 		// Entities :

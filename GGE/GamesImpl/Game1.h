@@ -6,6 +6,6 @@ namespace Game1
 {
 	static void	Run()	// throw
 	{
-		GGE::Game game;
+		GGE::GameEngine game;
 	}
 }

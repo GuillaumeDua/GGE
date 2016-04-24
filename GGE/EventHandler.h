@@ -29,11 +29,11 @@ namespace GGE
 	[Todo] : Keyboard event -> Do a stack of inputs
 	[Todo] : Mouse event
 	*/
-	class Game;
+	class GameEngine;
 
 	namespace UserEventsHandler
 	{
-		using GameType = Game;
+		using GameType = GameEngine;
 		using GameEventCB = std::function<bool(const sf::Event & event, GameType & game)>;			// CB can be a callback, a closure, obj-binded function members with place-holders etc ...
 		using MapType = std::unordered_multimap < const sf::Event::EventType, GameEventCB > ;
 
