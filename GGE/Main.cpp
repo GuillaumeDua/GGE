@@ -7,9 +7,19 @@
 #include "GameEngine.h"
 #include "GameEditor.h"
 
+//
+#include "GamesImpl/BrownienParticles.h"
+//
 
 int	main(int ac, char *av[])
 {
+	{
+		GameImpl::BrownienParticles::Run();
+
+		system("pause");
+		return 0;
+	}
+
 	//{
 	//	GGE::Editor::Test();
 
@@ -17,11 +27,10 @@ int	main(int ac, char *av[])
 	//	return 0;
 	//}
 
-	GGE::GameEngine game(GGE::GameEngine::Configuration::_Default);
-
 	try
 	{
 // [TEST]
+		GGE::GameEngine game(GGE::GameEngine::Configuration::_Default);
 
 		std::shared_ptr<Sonic> sonic = std::make_shared<Sonic>(std::move(std::make_pair(400.f, 400.f)));
 		sonic->ForceCurrentStatus(Sonic::Status::Walking);
