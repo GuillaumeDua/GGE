@@ -53,7 +53,7 @@ int	main(int ac, char *av[])
 
 		game += std::make_shared<GGE::GameEngine::SceneType>(
 			"SPRITES/bg_blue.png",
-			std::initializer_list < std::shared_ptr<IEntity> >
+			std::initializer_list < std::shared_ptr<GGE::IEntity> >
 		{
 			sonic
 			, sonicIA

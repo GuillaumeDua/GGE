@@ -3,6 +3,8 @@
 #include "../GameEngine.h"
 #include "../Entity.h"
 
+#include <random>
+
 namespace GameImpl
 {
 	namespace BrownienParticles
@@ -10,7 +12,7 @@ namespace GameImpl
 		static const GGE::GameEngine::Configuration GE_Configuration =
 		{
 			{
-				60.f
+				20.f
 				,{
 					[]() { std::cerr << "[Warning] : Frame drop detected !" << std::endl; }
 					// , ...
@@ -43,18 +45,46 @@ namespace GameImpl
 
 		using Particle = GGE::Entity < ParticleTrait >;
 
-		static void	Run()	// throw
+		struct PoissonRandomGenerator
+		{
+			const float _mean = 100.f;
+
+			std::default_random_engine generator;
+			std::poisson_distribution<int> distribution = std::poisson_distribution<int>{ _mean };
+
+			inline int Get(void)
+			{
+				return distribution(generator);
+			}
+		} static randomGen;
+
+		static void	Run(void)
 		{
 			try
 			{
 				GGE::GameEngine game(GE_Configuration);
 
-				game += std::make_shared<GGE::GameEngine::SceneType>(
+				std::vector<std::shared_ptr<GGE::IEntity>> particlesVector(100);
+				std::generate(
+					particlesVector.begin()
+					, particlesVector.end()
+					, [&]() -> std::shared_ptr<GGE::IEntity>
+					{
+						return std::make_shared<Particle>(std::move(
+							std::make_pair(
+								static_cast<float>(randomGen.Get() % GE_Configuration._screenDim._x)
+							,	static_cast<float>(randomGen.Get() % GE_Configuration._screenDim._y))));
+					}
+				);
+
+				std::shared_ptr<GGE::GameEngine::SceneType> scene = std::make_shared<GGE::GameEngine::SceneType>
+				(
 					"SPRITES/bg_blue.png",
-					std::initializer_list < std::shared_ptr<IEntity> >
-				{
-					std::make_shared<Particle>(std::move(std::make_pair(300.f, 300.f)))
-				});
+					std::initializer_list < std::shared_ptr<GGE::IEntity> >{}
+				);
+				scene->GetContent().insert(scene->GetContent().end(), particlesVector.begin(), particlesVector.end());
+
+				game += scene;
 
 				game.Start();
 			}
