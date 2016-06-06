@@ -8,13 +8,13 @@
 #include "GameEditor.h"
 
 //
-#include "GamesImpl/BrownienParticles.h"
+#include "GamesImpl/Particles.h"
 //
 
 int	main(int ac, char *av[])
 {
 	{
-		GameImpl::BrownienParticles::Run();
+		GameImpl::Particles::Run();
 
 		system("pause");
 		return 0;

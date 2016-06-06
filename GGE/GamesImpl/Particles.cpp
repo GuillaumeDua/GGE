@@ -1,8 +1,8 @@
-#include "BrownienParticles.h"
+#include "Particles.h"
 
 namespace GameImpl
 {
-	namespace BrownienParticles
+	namespace Particles
 	{
 		const GGE::SPRITE::Sheet ParticleTrait::gSpriteSheet_walking("C:/DEV/PROJECTS/GGE/GGE/GamesImpl/SPRITES/Particle.bmp", std::move(std::pair<int, int>(50, 10)), std::move(std::pair<int, int>(5, 1)));
 
@@ -12,7 +12,9 @@ namespace GameImpl
 				ParticleTrait::Status::Moving,
 				[&](GGE::Entity<ParticleTrait> & entity) mutable -> bool
 				{
-					// std::cout << "ParticleTrait::_behavior called !" << std::endl;
+					entity.Position().first += randomGen.Get();
+					entity.Position().second += randomGen.Get();
+
 					return true;
 				}
 			}

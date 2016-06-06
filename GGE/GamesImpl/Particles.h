@@ -7,12 +7,12 @@
 
 namespace GameImpl
 {
-	namespace BrownienParticles
+	namespace Particles
 	{
 		static const GGE::GameEngine::Configuration GE_Configuration =
 		{
 			{
-				20.f
+				60.f
 				,{
 					[]() { std::cerr << "[Warning] : Frame drop detected !" << std::endl; }
 					// , ...
@@ -47,14 +47,14 @@ namespace GameImpl
 
 		struct PoissonRandomGenerator
 		{
-			const float _mean = 100.f;
+			const float _mean = 5.f;
 
 			std::default_random_engine generator;
 			std::poisson_distribution<int> distribution = std::poisson_distribution<int>{ _mean };
 
 			inline int Get(void)
 			{
-				return distribution(generator);
+				return distribution(generator) - static_cast<int>(_mean);
 			}
 		} static randomGen;
 
@@ -72,8 +72,8 @@ namespace GameImpl
 					{
 						return std::make_shared<Particle>(std::move(
 							std::make_pair(
-								static_cast<float>(randomGen.Get() % GE_Configuration._screenDim._x)
-							,	static_cast<float>(randomGen.Get() % GE_Configuration._screenDim._y))));
+								static_cast<float>(randomGen.Get() + GE_Configuration._screenDim._x / 2)
+							,	static_cast<float>(randomGen.Get() + GE_Configuration._screenDim._y / 2))));
 					}
 				);
 
@@ -91,14 +91,14 @@ namespace GameImpl
 			catch (const std::exception & ex)
 			{
 				std::cerr
-					<< "[GameImpl::BrownienParticles]::[FATAL_ERROR] : std::exception catch" << std::endl
+					<< "[GameImpl::Particles]::[FATAL_ERROR] : std::exception catch" << std::endl
 					<< ex.what() << std::endl
 					;
 			}
 			catch (...)
 			{
 				std::cerr
-					<< "[GameImpl::BrownienParticles]::[FATAL_ERROR] : Unknow element catch" << std::endl
+					<< "[GameImpl::Particles]::[FATAL_ERROR] : Unknow element catch" << std::endl
 					;
 			}
 		}

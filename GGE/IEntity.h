@@ -39,6 +39,10 @@ namespace GGE
 		{
 			return this->_size;
 		}
+		inline PositionType &						Position(void)
+		{
+			return _position;
+		}
 		inline void									SetPosition(const PositionType & value)
 		{
 			this->_position = value;
