@@ -117,7 +117,7 @@ namespace GGE
 		struct Configuration
 		{
 			TicksSystem::Configuration _tickSystemConfiguration;
-			struct ScreenDim
+			struct WindowConfiguration
 			{
 				uint32_t _x;
 				uint32_t _y;

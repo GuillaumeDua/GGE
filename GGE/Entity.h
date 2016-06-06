@@ -139,7 +139,16 @@ namespace GGE
 			, _behavior(T_EntityTrait::_behavior)
 			, _animations(T_EntityTrait::_animation)
 			, _speed(15.0f)
-		{}
+		{
+			// [Todo] : EntityTrait::Configuration or Entity::Configuration/InitParameter
+			//			|- pos
+			//			|- speed
+			//			|- animation refresh rate
+		}
+		Entity(Entity && src)
+		{
+			assert(false); // [Todo] : move constructor
+		}
 		virtual ~Entity() {}
 
 		// [IEntity]

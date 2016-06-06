@@ -4,6 +4,7 @@ namespace GameImpl
 {
 	namespace Particles
 	{
+		// crash on : std::move(std::pair<int, int>(5, -->[0]<-- )));
 		const GGE::SPRITE::Sheet ParticleTrait::gSpriteSheet_walking("C:/DEV/PROJECTS/GGE/GGE/GamesImpl/SPRITES/Particle.bmp", std::move(std::pair<int, int>(50, 10)), std::move(std::pair<int, int>(5, 1)));
 
 		const ParticleTrait::Behavior ParticleTrait::_behavior =

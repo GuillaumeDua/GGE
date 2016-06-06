@@ -11,14 +11,19 @@ namespace GameImpl
 	{
 		static const GGE::GameEngine::Configuration GE_Configuration =
 		{
-			{
-				60.f
-				,{
-					[]() { std::cerr << "[Warning] : Frame drop detected !" << std::endl; }
-					// , ...
+				{																					// TicksSystem::Configuration
+						60.f																		// |- FPS
+					,	{																			// |- OnFrameDropEvents
+							[]() { std::cerr << "[Warning] : Frame drop detected !" << std::endl; }	//    |- Warning msg to cerr
+							// , ...
+						}
 				}
-			}
-			,{ 800, 600, 32, "[Brownien particles] : Instance rendering" }
+			,	{																					// WindowConfiguration
+						800																			// |- width
+					,	600																			// |- height
+					,	32																			// |- bit-mod
+					,	"[Brownien particles] : Instance rendering"									// |- title
+				}
 		};
 
 		struct ParticleTrait
@@ -27,8 +32,8 @@ namespace GameImpl
 
 			enum Status
 			{
-				Moving
-				, Default = Moving
+					Moving
+				,	Default = Moving
 			};
 
 			using Behavior = std::map < Status, std::function<bool(GGE::Entity<ParticleTrait>&)> >;
@@ -83,7 +88,6 @@ namespace GameImpl
 					std::initializer_list < std::shared_ptr<GGE::IEntity> >{}
 				);
 				scene->GetContent().insert(scene->GetContent().end(), particlesVector.begin(), particlesVector.end());
-
 				game += scene;
 
 				game.Start();

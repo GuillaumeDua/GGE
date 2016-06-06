@@ -15,29 +15,35 @@ namespace GGE
 	struct Scene
 	{
 		using T_DrawableType = std::shared_ptr<T_Drawable>;
-		using DrawableVectorType = typename std::vector < T_DrawableType > ;
+		using T_DrawableTypeVector = typename std::vector < T_DrawableType > ;
+		using T_Drawable_base = typename T_Drawable;
+		using T_DrawableTypeVector_base = typename std::vector < T_Drawable >;
 
 		Scene() = default;
-		//Scene(const std::string & backgroundTexturePath, DrawableVectorType && DrawableVectorType = DrawableVectorType())
-		Scene(const std::string & backgroundTexturePath, std::initializer_list<T_DrawableType> & DrawableVectorType)
-			: _drawables(DrawableVectorType.begin(), DrawableVectorType.end())
+		//Scene(const std::string & backgroundTexturePath, T_DrawableTypeVector && T_DrawableTypeVector = T_DrawableTypeVector())
+		Scene(const std::string & backgroundTexturePath, std::initializer_list<T_DrawableType> & T_DrawableTypeVector)
+			: _drawables(T_DrawableTypeVector.begin(), T_DrawableTypeVector.end())
 		{
 			this->LoadBackground(backgroundTexturePath);
 		}
-
 		~Scene() = default;
 
-		inline Scene &				operator+=(const DrawableVectorType & drawable)
+		inline Scene &				operator+=(const T_DrawableTypeVector & drawables)
+		{
+			this->_drawables.emplace_back(drawables);
+			return *this;
+		}
+		inline Scene &				operator+=(T_DrawableType && drawable)
 		{
 			this->_drawables.emplace_back(drawable);
 			return *this;
 		}
-		inline Scene &				operator+=(T_DrawableType & drawable)
+		inline Scene &				operator+=(T_DrawableTypeVector_base &&)
 		{
-			this->_drawables.emplace_back(drawable);
-			return *this;
+			// [Todo]
+			assert(false);
 		}
-		inline DrawableVectorType &	GetContent(void)
+		inline T_DrawableTypeVector &	GetContent(void)
 		{
 			return this->_drawables;
 		}
@@ -59,7 +65,7 @@ namespace GGE
 	protected:
 		static RenderWindow	*		_window;
 
-		DrawableVectorType			_drawables;
+		T_DrawableTypeVector			_drawables;
 		Sprite						_backgroundSprite;
 		Texture						_bufBatckgroundTexture; // To use as buffer. [Todo]=[To_test] -> SetSmooth
 
