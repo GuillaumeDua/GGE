@@ -89,7 +89,7 @@ namespace GGE
 				_tickCheckerThread->join();
 				_tickCheckerThread.reset();
 			}
-			void			ExecuteForPendingTime(const std::function<void(void)> & callback)
+			sf::Time			ExecuteForPendingTime(const std::function<void(void)> & callback)
 			{
 				sf::Time elaspedTime = _clock.restart();
 				_diffTimeCt += elaspedTime;
@@ -100,6 +100,7 @@ namespace GGE
 					_diffTimeCt -= _timePerFrame;
 					callback();
 				}
+				return sf::Time(_timePerFrame - _diffTimeCt);
 			}
 
 			// Frame drop
@@ -342,10 +343,12 @@ namespace GGE
 		}
 		bool												Loop(void)
 		{
+			sf::Time sleepTime;
 			_tickSystem.Start();
 			while (this->_IsRunning)
 			{
-				_tickSystem.ExecuteForPendingTime([this]() mutable { this->Update(); });
+				if ((sleepTime = _tickSystem.ExecuteForPendingTime([this]() mutable { this->Update(); })) != sf::Time::Zero)
+					std::this_thread::sleep_for(std::chrono::microseconds(sleepTime.asMicroseconds()));
 				_tickSystem.TriggerPendingEvents();
 			}
 			_tickSystem.Stop();
