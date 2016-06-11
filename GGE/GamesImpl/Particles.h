@@ -12,7 +12,7 @@ namespace GameImpl
 		static const GGE::GameEngine::Configuration GE_Configuration =
 		{
 				{																					// TicksSystem::Configuration
-						60.f																		// |- FPS
+						120.f																		// |- FPS
 					,	{																			// |- OnFrameDropEvents
 							[]() { std::cerr << "[Warning] : Frame drop detected !" << std::endl; }	//    |- Warning msg to cerr
 							// , ...
@@ -50,9 +50,10 @@ namespace GameImpl
 
 		using Particle = GGE::Entity < ParticleTrait >;
 
+		template <size_t Mean>
 		struct PoissonRandomGenerator
 		{
-			const float _mean = 5.f;
+			const float _mean = static_cast<float>(Mean);
 
 			std::default_random_engine generator;
 			std::poisson_distribution<int> distribution = std::poisson_distribution<int>{ _mean };
@@ -61,7 +62,8 @@ namespace GameImpl
 			{
 				return distribution(generator) - static_cast<int>(_mean);
 			}
-		} static randomGen;
+		};
+		static  PoissonRandomGenerator<3> randomGen;
 
 		static void	Run(void)
 		{

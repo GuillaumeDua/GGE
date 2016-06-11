@@ -67,18 +67,20 @@ namespace GGE
 					throw std::runtime_error("TicksSystem::Start : already running");
 				_isRunning = true;
 
+				DEBUG_INSTRUCTION(
 				assert(_tickCheckerThread.get() == 0x0);
-
 				_tickCheckerThread = std::make_unique<std::thread>([this]()
 				{
 					while (_isRunning)
 					{
 						_fpsCounter = 0;
 						std::this_thread::sleep_for(std::chrono::seconds(1));
+						std::cout << "[+] TickSystem : FPS = " << _fpsCounter << " / " << _FPS << std::endl;
 						if (_fpsCounter < _FPS)
 							Notify(TicksSystem::Event::FrameDrop);
 					}
 				});
+				);
 				Reset();
 			}
 			void			Stop()
@@ -86,17 +88,20 @@ namespace GGE
 				if (!_isRunning)
 					throw std::runtime_error("TicksSystem::Start : not running");
 				_isRunning = false;
+				DEBUG_INSTRUCTION
+				(
 				_tickCheckerThread->join();
 				_tickCheckerThread.reset();
+				)
 			}
-			sf::Time			ExecuteForPendingTime(const std::function<void(void)> & callback)
+			sf::Time		ExecuteForPendingTime(const std::function<void(void)> & callback)
 			{
 				sf::Time elaspedTime = _clock.restart();
 				_diffTimeCt += elaspedTime;
 
 				while (_diffTimeCt > _timePerFrame)
 				{
-					++_fpsCounter;
+					DEBUG_INSTRUCTION(++_fpsCounter;)
 					_diffTimeCt -= _timePerFrame;
 					callback();
 				}
@@ -105,8 +110,11 @@ namespace GGE
 
 			// Frame drop
 			std::atomic<bool>				_isRunning = false;
+			DEBUG_INSTRUCTION
+			(
 			size_t							_fpsCounter;
 			std::unique_ptr<std::thread>	_tickCheckerThread;
+			)
 			// Ticks
 			sf::Clock						_clock;
 			sf::Time						_diffTimeCt;
@@ -181,11 +189,10 @@ namespace GGE
 			this->_IsRunning = true;
 
 			std::cout << "[+] Start ... framerate set at : " << _tickSystem._FPS << std::endl;
-			bool ret(true);
 
 			try
 			{
-				 ret = this->Loop();
+				 this->Loop();
 			}
 			catch (const GCL::Exception & ex)
 			{
@@ -203,7 +210,7 @@ namespace GGE
 				return false;
 			}
 			this->_window.close();
-			return ret;
+			return true;
 		}
 		bool												Stop(void)
 		{
@@ -325,12 +332,17 @@ namespace GGE
 		// Loop
 		void												Update(void)
 		{
+			static sf::Time sleepTime;
 			try
 			{
 				// Events
-				this->ManageEvents();
+				sleepTime = _tickSystem.ExecuteForPendingTime([this]() mutable { this->ManageEvents(); });
+				_tickSystem.TriggerPendingEvents();
+
 				// Rendering
 				(*_currentSceneIt)->Draw();
+
+				std::this_thread::sleep_for(std::chrono::microseconds(sleepTime.asMicroseconds()));
 			}
 			catch (const std::exception & ex)
 			{
@@ -341,18 +353,14 @@ namespace GGE
 				std::cerr << "[Error]::[GGE::GameEngine::Update] : Unknown exception catch" << std::endl;
 			}
 		}
-		bool												Loop(void)
+		void												Loop(void)
 		{
-			sf::Time sleepTime;
 			_tickSystem.Start();
 			while (this->_IsRunning)
 			{
-				if ((sleepTime = _tickSystem.ExecuteForPendingTime([this]() mutable { this->Update(); })) != sf::Time::Zero)
-					std::this_thread::sleep_for(std::chrono::microseconds(sleepTime.asMicroseconds()));
-				_tickSystem.TriggerPendingEvents();
+				this->Update();
 			}
 			_tickSystem.Stop();
-			return true;
 		}
 
 		// Ticks :
