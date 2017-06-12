@@ -72,7 +72,7 @@ namespace GGE
 		inline void	LoadBackground(const std::string & texture_path)
 		{
 			if (!(_bufBatckgroundTexture.loadFromFile(texture_path)))
-				throw GCL::Exception("[Error] : GGE::Game::SetBackground : Cannot load texture from file : " + texture_path);
+				throw gcl::exception("[Error] : GGE::Game::SetBackground : Cannot load texture from file : " + texture_path);
 			this->_backgroundSprite.setTexture(_bufBatckgroundTexture);
 		}
 	};

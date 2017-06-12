@@ -11,8 +11,8 @@
 # include <future>
 # include <chrono>
 
-# include <GCL_CPP/Exception.h>
-# include <GCL_CPP/Vector.h>
+# include <gcl_cpp/exception.hpp>
+# include <GCL_CPP/Container.h>
 # include "RENDERING/Types.h"
 # include "IEntity.h"
 # include "Entity.h"
@@ -20,6 +20,7 @@
 # include "EventHandler.h"
 # include "CooldownManager.h"
 # include "CollisionEngine.h"
+# include "EventsManager.h"
 
 // Window::SetFramerateLimit => vertical sync ?
 // screenshots => sf::Image Scren = App.Capture()
@@ -31,17 +32,17 @@ namespace GGE
 	{
 	public:
 		
-		struct TicksSystem : GCL::Events::EventHandler<>
+		struct TicksSystem : gcl::events::EventHandler<>
 		{
 			struct Event
 			{
-				static const GCL::Events::EventHandler<>::T_EventID FrameDrop;
+				static const gcl::events::EventHandler<>::T_EventID FrameDrop;
 			};
 
 			struct Configuration
 			{
 				const float _FPS;
-				const std::vector<GCL::Events::EventHandler<>::T_EventCallback> _onFrameDropEventCallbacks;
+				const std::vector<gcl::events::EventHandler<>::T_EventCallback> _onFrameDropEventCallbacks;
 				static Configuration _Default;
 			};
 
@@ -50,7 +51,7 @@ namespace GGE
 				: _FPS(c._FPS)
 			{
 				for (auto & cb : c._onFrameDropEventCallbacks)
-					this->on(Event::FrameDrop) += GCL::Events::EventHandler<>::T_EventCallback(cb);
+					this->on(Event::FrameDrop) += gcl::events::EventHandler<>::T_EventCallback(cb);
 				this->Reset();
 			}
 			TicksSystem(const TicksSystem &) = default;
@@ -163,16 +164,16 @@ namespace GGE
 						throw std::runtime_error("[Error] : Entity failed to behave correctly");
 				return true;  
 			}};
-			// Entities collisions
-			this->_frameEventManager += {5, [this]() mutable -> bool
-			{
-				this->_collisionEngine->Calculate();
-				this->_collisionEngine->ApplyOnCollisionEvents();
-				return true;
-			}};
+			//// Entities collisions
+			//this->_frameEventManager += {5, [this]() mutable -> bool
+			//{
+			//	this->_collisionEngine->Calculate();
+			//	this->_collisionEngine->ApplyOnCollisionEvents();
+			//	return true;
+			//}};
 		}
 
-		// Run [-> I cld use my own Runnable class]
+		// Todo : Use gcl::Monitoring::Runnable
 		bool												Start(void)
 		{
 			if (this->_IsRunning)
@@ -192,11 +193,12 @@ namespace GGE
 
 			try
 			{
-				 this->Loop();
+				GGE::Events::ControlCenter::GetInstance().Start();
+				this->Loop();
 			}
-			catch (const GCL::Exception & ex)
+			catch (const gcl::exception & ex)
 			{
-				std::cerr << "GCL exception catch : " << ex.what() << std::endl;
+				std::cerr << "gcl exception catch : " << ex.what() << std::endl;
 				return false;
 			}
 			catch (const std::exception & ex)
@@ -215,6 +217,7 @@ namespace GGE
 		bool												Stop(void)
 		{
 			this->_IsRunning = false;
+			GGE::Events::ControlCenter::GetInstance().Stop();
 		}
 		// Scenes
 		using SceneType = GGE::Scene<IEntity>;
@@ -319,7 +322,7 @@ namespace GGE
 			_frameEventManager.Check();
 		}
 		// Entities 
-		using T_EntityVector = GCL::Vector<std::shared_ptr<IEntity>>;
+		using T_EntityVector = gcl::container::non_concurrent::Vector<std::shared_ptr<IEntity>>;
 		inline T_EntityVector &								Entities(void)
 		{
 			return _entities;

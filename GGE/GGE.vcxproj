@@ -86,6 +86,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\DEV\PROJECTS\GCL_CPP;C:\DEV\EXT_LIBS\SFML-2.3.2\include</AdditionalIncludeDirectories>
+      <AdditionalOptions>/Zm2000 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -147,6 +148,7 @@
     <ClInclude Include="..\..\GCL_CPP\GCL_CPP\Vector.h" />
     <ClInclude Include="CooldownManager.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="EventsManager.h" />
     <ClInclude Include="GameEngine.h" />
     <ClInclude Include="GameEditor.h" />
     <ClInclude Include="GamesImpl\Particles.h" />

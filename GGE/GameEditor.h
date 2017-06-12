@@ -303,7 +303,7 @@ namespace GGE
 				, std::string("C:/DEV/PROJECTS/GGE/GGE/SPRITES/GusGameOfLife.bmp")
 				);
 
-			GCL::Vector<std::shared_ptr<TextInputBox>> array_txtBx_DimQty =
+			gcl::container::non_concurrent::Vector<std::shared_ptr<TextInputBox>> array_txtBx_DimQty =
 			{
 				std::make_shared<TextInputBox>(
 					HitBox{ { 50.f, 100.f }, { 50, 50 } }

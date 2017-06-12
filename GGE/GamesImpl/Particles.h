@@ -63,7 +63,7 @@ namespace GameImpl
 				return distribution(generator) - static_cast<int>(_mean);
 			}
 		};
-		static  PoissonRandomGenerator<3> randomGen;
+		static PoissonRandomGenerator<3> randomGen;
 
 		static void	Run(void)
 		{
@@ -71,7 +71,7 @@ namespace GameImpl
 			{
 				GGE::GameEngine game(GE_Configuration);
 
-				std::vector<std::shared_ptr<GGE::IEntity>> particlesVector(100);
+				std::vector<std::shared_ptr<GGE::IEntity>> particlesVector(300);
 				std::generate(
 					particlesVector.begin()
 					, particlesVector.end()

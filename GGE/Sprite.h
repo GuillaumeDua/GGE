@@ -1,7 +1,7 @@
 #ifndef __GGE_SPRITES__
 # define __GGE_SPRITES__
 
-# include <GCL_CPP/Preprocessor.h>
+# include <GCL_CPP/preprocessor.hpp>
 # include <SFML/Graphics.hpp>
 # include <vector>
 # include <iostream>
@@ -22,7 +22,7 @@ namespace GGE
 			Sheet &	operator=(Sheet && sheet) = delete;
 			//{
 			//	if (&sheet == this)
-			//		throw GCL::Exception("[Error] : Attempting to move a GGE::Sprite::Sheet to itself");
+			//		throw gcl::Exception("[Error] : Attempting to move a GGE::Sprite::Sheet to itself");
 			//	if (sheet._isValid == false)
 			//		throw std::logic_error("[Error] : Attempting to move a non-valid GGE::Sprite::Sheet");
 			//}

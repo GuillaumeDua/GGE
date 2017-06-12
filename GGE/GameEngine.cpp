@@ -11,4 +11,4 @@ GGE::GameEngine::Configuration GGE::GameEngine::Configuration::_Default =
 	}
 	, { 800, 600, 32, "[Default Configuration] : GGE : Instance rendering"}
 };
-const GCL::Events::EventHandler<>::T_EventID GGE::GameEngine::TicksSystem::Event::FrameDrop = "FrameDrop";
+const gcl::events::EventHandler<>::T_EventID GGE::GameEngine::TicksSystem::Event::FrameDrop = "FrameDrop";

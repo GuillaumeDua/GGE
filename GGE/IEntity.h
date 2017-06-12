@@ -8,7 +8,7 @@
 namespace GGE
 {
 	struct HitBox
-		: public GCL::Events::EventHandler<>
+		: public gcl::events::EventHandler<>
 	{
 		using PositionType = std::pair < float, float >;
 		using SizeType = std::pair < int, int >;

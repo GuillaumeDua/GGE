@@ -2,7 +2,7 @@
 # define COLLISION_ENGINE__
 
 # include "IEntity.h"
-# include <GCL_CPP/Vector.h>
+# include <GCL_CPP/Container.h>
 # include <queue>
 # include <vector>
 # include <memory>

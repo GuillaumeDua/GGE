@@ -10,9 +10,9 @@
 
 # include <SFML/Graphics.hpp>
 
-# include <GCL_CPP/Exception.h>
-# include <GCL_CPP/Maths.h>
-# include <GCL_CPP/Vector.h>
+# include <gcl_cpp/exception.hpp>
+# include <gcl_cpp/maths.h>
+# include <gcl_cpp/Container.h>
 
 # include "IEntity.h"
 # include "Sprite.h"
@@ -75,8 +75,8 @@ namespace GGE
 				_destination.second = destination.second < 0 ? 0 : destination.second;
 
 				_destination = destination;
-				_modifiers.first = GCL::Maths::Cos(_destination.first);
-				_modifiers.second = GCL::Maths::Sin(_destination.second);
+				_modifiers.first = gcl::maths::cos(_destination.first);
+				_modifiers.second = gcl::maths::sin(_destination.second);
 
 				_isActive = true;
 			}
@@ -165,8 +165,8 @@ namespace GGE
 			_debugBox.setFillColor(sf::Color::Transparent);
 			_debugBox.setOutlineThickness(5);
 			_debugBox.setPosition(_position.first, _position.second);
-			));
 			renderWindow.draw(_debugBox);
+			));
 		}
 		bool									Behave(void) override
 		{

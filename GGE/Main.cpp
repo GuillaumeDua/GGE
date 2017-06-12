@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 
-#include <GCL_CPP/Exception.h>
-#include <GCL_CPP/Preprocessor.h>
+#include <GCL_CPP/exception.hpp>
+#include <GCL_CPP/preprocessor.hpp>
 #include <GCL_CPP/EventHandler.h>
 
 #include "GameEngine.h"
@@ -100,9 +100,9 @@ int	main(int ac, char *av[])
 
 		game.Start();
 	}
-	catch (const GCL::Exception & ex)
+	catch (const gcl::exception & ex)
 	{
-		std::cerr << "[ERROR] : GCL exception catch : [" << ex.what() << ']' << std::endl;
+		std::cerr << "[ERROR] : gcl exception catch : [" << ex.what() << ']' << std::endl;
 	}
 	catch (const std::exception & ex)
 	{
