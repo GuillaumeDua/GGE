@@ -3,12 +3,12 @@
 
 # include <map>
 # include <SFML/Graphics/RenderWindow.hpp>
-# include <GCL_CPP/EventHandler.h>
+# include <gcl_cpp/old/EventHandler.h>
 
 namespace GGE
 {
 	struct HitBox
-		: public gcl::events::EventHandler<>
+		: public gcl::old::events::EventHandler<>
 	{
 		using PositionType = std::pair < float, float >;
 		using SizeType = std::pair < int, int >;

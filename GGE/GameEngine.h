@@ -32,17 +32,17 @@ namespace GGE
 	{
 	public:
 		
-		struct TicksSystem : gcl::events::EventHandler<>
+		struct TicksSystem : gcl::old::events::EventHandler<>
 		{
 			struct Event
 			{
-				static const gcl::events::EventHandler<>::T_EventID FrameDrop;
+				static const gcl::old::events::EventHandler<>::T_EventID FrameDrop;
 			};
 
 			struct Configuration
 			{
 				const float _FPS;
-				const std::vector<gcl::events::EventHandler<>::T_EventCallback> _onFrameDropEventCallbacks;
+				const std::vector<gcl::old::events::EventHandler<>::T_EventCallback> _onFrameDropEventCallbacks;
 				static Configuration _Default;
 			};
 
@@ -51,7 +51,7 @@ namespace GGE
 				: _FPS(c._FPS)
 			{
 				for (auto & cb : c._onFrameDropEventCallbacks)
-					this->on(Event::FrameDrop) += gcl::events::EventHandler<>::T_EventCallback(cb);
+					this->on(Event::FrameDrop) += gcl::old::events::EventHandler<>::T_EventCallback(cb);
 				this->Reset();
 			}
 			TicksSystem(const TicksSystem &) = default;

@@ -1,8 +1,8 @@
 #include <SFML/Graphics.hpp>
 
-#include <GCL_CPP/exception.hpp>
-#include <GCL_CPP/preprocessor.hpp>
-#include <GCL_CPP/EventHandler.h>
+#include <gcl_cpp/exception.hpp>
+#include <gcl_cpp/preprocessor.hpp>
+#include <gcl_cpp/old/EventHandler.h>
 
 #include "GameEngine.h"
 #include "GameEditor.h"
